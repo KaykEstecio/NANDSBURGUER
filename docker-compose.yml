@@ -3,11 +3,11 @@ version: '3.8'
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: ecommerce-db
+    container_name: nands-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: ecommerce_db
+      POSTGRES_DB: nands_db
     ports:
       - "5432:5432"
     volumes:
@@ -18,22 +18,40 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - ecommerce-network
+      - nands-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nands-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/nands_db
+      JWT_SECRET: your_jwt_secret_key_here_change_in_production
+      JWT_EXPIRES_IN: 7d
+      NODE_ENV: development
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - nands-network
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: ecommerce-frontend
+    container_name: nands-frontend
     depends_on:
-      postgres:
-        condition: service_healthy
+      - backend
     environment:
-      DATABASE_URL: postgresql://postgres:password@postgres:5432/ecommerce_db
-      JWT_SECRET: your_jwt_secret_key_here
-      JWT_EXPIRES_IN: 7d
+      NEXT_PUBLIC_API_URL: http://nands-backend:3001
       NODE_ENV: development
-      NEXT_PUBLIC_API_URL: /api
     ports:
       - "3000:3000"
     volumes:
@@ -41,12 +59,12 @@ services:
       - /app/node_modules
       - /app/.next
     networks:
-      - ecommerce-network
+      - nands-network
 
 volumes:
   postgres_data:
     driver: local
 
 networks:
-  ecommerce-network:
+  nands-network:
     driver: bridge
