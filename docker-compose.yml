@@ -20,11 +20,11 @@ services:
     networks:
       - ecommerce-network
 
-  backend:
+  frontend:
     build:
-      context: ./backend
+      context: ./frontend
       dockerfile: Dockerfile
-    container_name: ecommerce-backend
+    container_name: ecommerce-frontend
     depends_on:
       postgres:
         condition: service_healthy
@@ -33,31 +33,7 @@ services:
       JWT_SECRET: your_jwt_secret_key_here
       JWT_EXPIRES_IN: 7d
       NODE_ENV: development
-      PORT: 3001
-      API_URL: http://backend:3001
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./backend/src:/app/src
-      - ./backend/prisma:/app/prisma
-    networks:
-      - ecommerce-network
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: ecommerce-frontend
-    depends_on:
-      - backend
-    environment:
-      NEXT_PUBLIC_API_URL: http://backend:3001
-      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: /api
     ports:
       - "3000:3000"
     volumes:

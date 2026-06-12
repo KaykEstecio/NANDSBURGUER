@@ -67,6 +67,22 @@ export function NavBar() {
                   <Link href="/profile" className="text-sm font-semibold text-white hover:text-[#F77F00] transition">
                     {user?.name}
                   </Link>
+                  {user?.role === 'ADMIN' && (
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href="/admin"
+                        className="text-sm font-semibold text-[#F77F00] hover:text-white transition"
+                      >
+                        📊 Dashboard
+                      </Link>
+                      <Link
+                        href="/admin/orders"
+                        className="text-sm font-semibold text-[#F77F00] hover:text-white transition"
+                      >
+                        📦 Pedidos
+                      </Link>
+                    </div>
+                  )}
                   <button
                     onClick={logout}
                     className="rounded-full bg-[#D62828] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#b11f1f]"

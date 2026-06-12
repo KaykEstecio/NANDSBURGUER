@@ -9,19 +9,47 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState('');
   const { login } = useAuth();
   const router = useRouter();
+
+  function validateEmail(email: string) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    setEmailError('');
+
+    if (!email.trim()) {
+      setEmailError('Email é obrigatório');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setEmailError('Email inválido');
+      return;
+    }
+
+    if (!password.trim()) {
+      setError('Senha é obrigatória');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       await login(email, password);
       router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao fazer login');
+      setError(err instanceof Error ? err.message : 'Email ou senha incorretos');
     } finally {
       setIsLoading(false);
     }
@@ -35,7 +63,10 @@ export function LoginForm() {
         <p className="text-sm text-gray-600">Faça login e continue a sua jornada de sabor.</p>
       </div>
 
-      {error && <div className="bg-[#ffe3e1] text-[#8b1818] p-4 rounded-3xl mb-6 border border-[#f7c0bf]">{error}</div>}
+      {error && <div className="bg-[#ffe3e1] text-[#8b1818] p-3 rounded-2xl mb-5 border border-[#f7c0bf] text-sm flex items-center gap-2">
+        <span>⚠️</span>
+        {error}
+      </div>}
 
       <div className="space-y-5">
         <div>
@@ -43,10 +74,17 @@ export function LoginForm() {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-3xl border border-[#ddd] bg-[#faf3ed] px-4 py-3 text-sm outline-none transition focus:border-[#D62828]"
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (e.target.value.trim()) setEmailError('');
+            }}
+            placeholder="seu@email.com"
+            className={`w-full rounded-3xl border bg-[#faf3ed] px-4 py-3 text-sm outline-none transition ${
+              emailError ? 'border-[#D62828] focus:border-[#D62828]' : 'border-[#ddd] focus:border-[#D62828]'
+            }`}
             required
           />
+          {emailError && <p className="text-[#D62828] text-xs mt-1">{emailError}</p>}
         </div>
 
         <div>
@@ -55,6 +93,7 @@ export function LoginForm() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••"
             className="w-full rounded-3xl border border-[#ddd] bg-[#faf3ed] px-4 py-3 text-sm outline-none transition focus:border-[#D62828]"
             required
           />
@@ -63,11 +102,15 @@ export function LoginForm() {
 
       <button
         type="submit"
-        disabled={isLoading}
+        disabled={isLoading || !email || !password}
         className="mt-8 w-full rounded-full bg-[#D62828] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#b11f1f] disabled:cursor-not-allowed disabled:bg-[#f3a29c]"
       >
-        {isLoading ? 'Entrando...' : 'Entrar'}
+        {isLoading ? '⏳ Entrando...' : '🚀 Entrar'}
       </button>
+
+      <p className="text-center text-xs text-gray-600 mt-6">
+        Não tem conta? <a href="/auth/register" className="text-[#D62828] font-semibold hover:underline">Cadastre-se aqui</a>
+      </p>
     </form>
   );
 }

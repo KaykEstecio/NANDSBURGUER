@@ -1,6 +1,15 @@
 import axios, { AxiosInstance } from 'axios';
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// Em produção na Vercel, as API Routes ficam em /api
+// Em desenvolvimento local, pode apontar para backend separado
+const apiUrl = (() => {
+  if (typeof window !== 'undefined') {
+    // Client-side
+    return process.env.NEXT_PUBLIC_API_URL || '/api';
+  }
+  // Server-side
+  return process.env.NEXT_PUBLIC_API_URL || '/api';
+})();
 
 class ApiClient {
   private client: AxiosInstance;

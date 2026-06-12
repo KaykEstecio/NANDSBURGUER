@@ -115,6 +115,13 @@ export class OrderService {
       where: { id },
       data: { status: status as any },
       include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
         items: {
           include: {
             product: {
@@ -133,6 +140,13 @@ export class OrderService {
       skip,
       take,
       include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
         items: {
           include: {
             product: {

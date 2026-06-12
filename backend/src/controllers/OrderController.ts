@@ -57,10 +57,21 @@ export class OrderController {
 
   async updateOrderStatus(req: AuthRequest, res: Response) {
     try {
+      // Validar se o usuário é ADMIN
+      if (req.user?.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Apenas administradores podem atualizar o status de pedidos' });
+      }
+
       const { status } = req.body;
 
       if (!status) {
         return res.status(400).json({ error: 'Status is required' });
+      }
+
+      // Validar se o status é válido
+      const validStatuses = ['PENDING', 'PAID', 'FAILED', 'CANCELLED'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: 'Status inválido. Use: PENDING, PAID, FAILED, CANCELLED' });
       }
 
       const order = await orderService.updateOrderStatus(req.params.id, status);
