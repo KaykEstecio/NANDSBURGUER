@@ -19,7 +19,7 @@ export function createApp() {
     definition: {
       openapi: '3.0.0',
       info: {
-        title: 'E-Commerce API',
+        title: 'Nands Burger API',
         version: '1.0.0',
         description: 'Complete e-commerce API documentation'
       },

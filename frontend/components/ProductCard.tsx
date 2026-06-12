@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,19 +11,20 @@ interface ProductCardProps {
   product: Product;
 }
 
+const CATEGORY_IMAGES: Record<string, string> = {
+  bebidas: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=80',
+  combos: 'https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=900&q=80',
+  'porções': 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=900&q=80',
+  hambúrgueres: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=80',
+  'beirutes': 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=900&q=80',
+  "nand's especiais": 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80',
+};
+
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80';
+
 function getProductImage(product: Product) {
   const category = product.category?.name?.toLowerCase() || '';
-  const name = product.name.toLowerCase();
-
-  if (category.includes('bebida') || name.includes('drink') || name.includes('refrigerante') || name.includes('suco')) {
-    return 'https://images.unsplash.com/photo-1542444459-db4d46b2b6f7?auto=format&fit=crop&w=900&q=80';
-  }
-
-  if (category.includes('combo') || name.includes('combo')) {
-    return 'https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=900&q=80';
-  }
-
-  return 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80';
+  return CATEGORY_IMAGES[category] ?? FALLBACK_IMAGE;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -30,13 +32,14 @@ export function ProductCard({ product }: ProductCardProps) {
   const [error, setError] = useState('');
   const { addItem } = useCart();
   const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   async function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
 
     if (!isAuthenticated) {
-      window.location.href = '/auth/login';
+      router.push('/auth/login');
       return;
     }
 

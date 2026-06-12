@@ -1,15 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
+import { Category, Product } from '../types';
 
-// Em produção na Vercel, as API Routes ficam em /api
-// Em desenvolvimento local, pode apontar para backend separado
-const apiUrl = (() => {
-  if (typeof window !== 'undefined') {
-    // Client-side
-    return process.env.NEXT_PUBLIC_API_URL || '/api';
-  }
-  // Server-side
-  return process.env.NEXT_PUBLIC_API_URL || '/api';
-})();
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -67,12 +59,12 @@ class ApiClient {
     return response.data;
   }
 
-  async createProduct(data: any) {
+  async createProduct(data: Omit<Product, 'id' | 'category' | 'createdAt' | 'updatedAt'>) {
     const response = await this.client.post('/products', data);
     return response.data;
   }
 
-  async updateProduct(id: string, data: any) {
+  async updateProduct(id: string, data: Partial<Omit<Product, 'id' | 'category' | 'createdAt' | 'updatedAt'>>) {
     const response = await this.client.put(`/products/${id}`, data);
     return response.data;
   }
@@ -98,12 +90,12 @@ class ApiClient {
     return response.data;
   }
 
-  async createCategory(data: any) {
+  async createCategory(data: Pick<Category, 'name' | 'description'>) {
     const response = await this.client.post('/categories', data);
     return response.data;
   }
 
-  async updateCategory(id: string, data: any) {
+  async updateCategory(id: string, data: Partial<Pick<Category, 'name' | 'description'>>) {
     const response = await this.client.put(`/categories/${id}`, data);
     return response.data;
   }

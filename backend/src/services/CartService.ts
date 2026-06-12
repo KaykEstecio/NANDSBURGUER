@@ -1,7 +1,4 @@
 import { prisma } from '../config/database';
-import { ProductService } from './ProductService';
-
-const productService = new ProductService();
 
 interface AddToCartInput {
   userId: string;

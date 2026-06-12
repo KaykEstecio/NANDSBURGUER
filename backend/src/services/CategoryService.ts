@@ -5,6 +5,8 @@ interface CreateCategoryInput {
   description?: string;
 }
 
+type UpdateCategoryInput = Partial<CreateCategoryInput>;
+
 export class CategoryService {
   async getAll() {
     return prisma.category.findMany({
@@ -29,7 +31,7 @@ export class CategoryService {
     });
   }
 
-  async update(id: string, input: CreateCategoryInput) {
+  async update(id: string, input: UpdateCategoryInput) {
     return prisma.category.update({
       where: { id },
       data: input

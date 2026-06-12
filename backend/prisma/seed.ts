@@ -213,6 +213,273 @@ async function main() {
     }
   }
 
+  // Hambúrgueres Category
+  let hamburgueresCategory = await prisma.category.findUnique({
+    where: { name: 'Hambúrgueres' }
+  });
+
+  if (!hamburgueresCategory) {
+    hamburgueresCategory = await prisma.category.create({
+      data: {
+        name: 'Hambúrgueres',
+        description: 'Hambúrgueres clássicos artesanais'
+      }
+    });
+    console.log('Created category: Hambúrgueres');
+  }
+
+  // Combos Category
+  let combosCategory = await prisma.category.findUnique({
+    where: { name: 'Combos' }
+  });
+
+  if (!combosCategory) {
+    combosCategory = await prisma.category.create({
+      data: {
+        name: 'Combos',
+        description: 'Combos completos com lanche, batata e bebida'
+      }
+    });
+    console.log('Created category: Combos');
+  }
+
+  // Bebidas Category
+  let bebidasCategory = await prisma.category.findUnique({
+    where: { name: 'Bebidas' }
+  });
+
+  if (!bebidasCategory) {
+    bebidasCategory = await prisma.category.create({
+      data: {
+        name: 'Bebidas',
+        description: 'Refrigerantes, sucos e bebidas geladas'
+      }
+    });
+    console.log('Created category: Bebidas');
+  }
+
+  // Porções Category
+  let porcoesCategory = await prisma.category.findUnique({
+    where: { name: 'Porções' }
+  });
+
+  if (!porcoesCategory) {
+    porcoesCategory = await prisma.category.create({
+      data: {
+        name: 'Porções',
+        description: 'Porções para acompanhar ou compartilhar'
+      }
+    });
+    console.log('Created category: Porções');
+  }
+
+  // Hambúrgueres Products
+  const hamburgueresProducts = [
+    {
+      name: 'Classic Burger',
+      description: 'Pão brioche, hambúrguer bovino 150g, alface, tomate, picles e maionese da casa',
+      price: 28.00,
+      stock: 60,
+      categoryId: hamburgueresCategory.id
+    },
+    {
+      name: 'Smash Burger',
+      description: 'Pão de batata, 2 smash patties 80g cada, queijo americano, cebola crispy e molho especial',
+      price: 32.00,
+      stock: 55,
+      categoryId: hamburgueresCategory.id
+    },
+    {
+      name: 'Bacon Burger',
+      description: 'Pão brioche, hambúrguer bovino 180g, queijo prato, bacon crocante e maionese defumada',
+      price: 34.00,
+      stock: 50,
+      categoryId: hamburgueresCategory.id
+    },
+    {
+      name: 'Frango Crispy',
+      description: 'Pão brioche, filé de frango empanado crocante, alface americana, picles e molho honey mustard',
+      price: 30.00,
+      stock: 45,
+      categoryId: hamburgueresCategory.id
+    },
+    {
+      name: 'Double Cheese',
+      description: 'Pão brioche, 2 hambúrgueres bovino 120g, queijo cheddar duplo e maionese artesanal',
+      price: 36.00,
+      stock: 40,
+      categoryId: hamburgueresCategory.id
+    },
+    {
+      name: 'BBQ Burger',
+      description: 'Pão australiano, hambúrguer bovino 180g, queijo prato, cebola caramelizada e molho BBQ caseiro',
+      price: 35.00,
+      stock: 48,
+      categoryId: hamburgueresCategory.id
+    }
+  ];
+
+  // Combos Products
+  const combosProducts = [
+    {
+      name: 'Combo Classic',
+      description: 'Classic Burger + batata frita média + refrigerante 350ml',
+      price: 42.00,
+      stock: 50,
+      categoryId: combosCategory.id
+    },
+    {
+      name: 'Combo Bacon',
+      description: 'Bacon Burger + batata frita grande + refrigerante 500ml',
+      price: 50.00,
+      stock: 45,
+      categoryId: combosCategory.id
+    },
+    {
+      name: 'Combo Família',
+      description: '2 Classic Burgers + 2 batatas fritas grandes + 2 refrigerantes 350ml',
+      price: 85.00,
+      stock: 30,
+      categoryId: combosCategory.id
+    },
+    {
+      name: 'Combo Smash',
+      description: 'Smash Burger + batata frita crocante + milkshake 400ml',
+      price: 55.00,
+      stock: 40,
+      categoryId: combosCategory.id
+    },
+    {
+      name: 'Combo Frango',
+      description: 'Frango Crispy + batata frita média + suco natural 300ml',
+      price: 45.00,
+      stock: 38,
+      categoryId: combosCategory.id
+    }
+  ];
+
+  // Bebidas Products
+  const bebidasProducts = [
+    {
+      name: 'Coca-Cola 350ml',
+      description: 'Refrigerante Coca-Cola lata gelada',
+      price: 7.00,
+      stock: 100,
+      categoryId: bebidasCategory.id
+    },
+    {
+      name: 'Guaraná Antarctica 350ml',
+      description: 'Refrigerante Guaraná Antarctica lata gelada',
+      price: 6.00,
+      stock: 100,
+      categoryId: bebidasCategory.id
+    },
+    {
+      name: 'Suco de Laranja Natural',
+      description: 'Suco de laranja espremido na hora, 400ml',
+      price: 10.00,
+      stock: 50,
+      categoryId: bebidasCategory.id
+    },
+    {
+      name: 'Milkshake de Chocolate',
+      description: 'Milkshake cremoso de chocolate belga, 400ml',
+      price: 18.00,
+      stock: 40,
+      categoryId: bebidasCategory.id
+    },
+    {
+      name: 'Milkshake de Morango',
+      description: 'Milkshake cremoso de morango com leite condensado, 400ml',
+      price: 18.00,
+      stock: 40,
+      categoryId: bebidasCategory.id
+    },
+    {
+      name: 'Água Mineral 500ml',
+      description: 'Água mineral natural sem gás',
+      price: 4.00,
+      stock: 150,
+      categoryId: bebidasCategory.id
+    },
+    {
+      name: 'Coca-Cola 600ml',
+      description: 'Refrigerante Coca-Cola garrafa gelada',
+      price: 9.00,
+      stock: 80,
+      categoryId: bebidasCategory.id
+    }
+  ];
+
+  // Porções Products
+  const porcoesProducts = [
+    {
+      name: 'Batata Frita Média',
+      description: 'Porção de batata frita crocante temperada, 200g',
+      price: 14.00,
+      stock: 80,
+      categoryId: porcoesCategory.id
+    },
+    {
+      name: 'Batata Frita Grande',
+      description: 'Porção de batata frita crocante temperada, 350g',
+      price: 20.00,
+      stock: 70,
+      categoryId: porcoesCategory.id
+    },
+    {
+      name: 'Batata com Cheddar e Bacon',
+      description: 'Porção de batata frita coberta com cheddar derretido e bacon crocante, 300g',
+      price: 28.00,
+      stock: 55,
+      categoryId: porcoesCategory.id
+    },
+    {
+      name: 'Onion Rings',
+      description: 'Anéis de cebola empanados e fritos, crocantes e dourados, 200g',
+      price: 22.00,
+      stock: 50,
+      categoryId: porcoesCategory.id
+    },
+    {
+      name: 'Fritas Mistas',
+      description: 'Mix de batata frita e mandioca frita, 300g com molho especial',
+      price: 26.00,
+      stock: 45,
+      categoryId: porcoesCategory.id
+    },
+    {
+      name: 'Nuggets de Frango',
+      description: '10 unidades de nuggets de frango crocante com molho barbecue',
+      price: 24.00,
+      stock: 60,
+      categoryId: porcoesCategory.id
+    }
+  ];
+
+  const allNewProducts = [
+    ...hamburgueresProducts,
+    ...combosProducts,
+    ...bebidasProducts,
+    ...porcoesProducts
+  ];
+
+  for (const product of allNewProducts) {
+    const existingProduct = await prisma.product.findFirst({
+      where: { name: product.name }
+    });
+
+    if (!existingProduct) {
+      await prisma.product.create({
+        data: {
+          ...product,
+          createdById: adminUser.id
+        }
+      });
+      console.log(`Created product: ${product.name}`);
+    }
+  }
+
   console.log('Seeding finished!');
 }
 
