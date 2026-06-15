@@ -4,12 +4,17 @@ import { authenticateToken } from '@/lib/auth-middleware';
 
 const categoryService = new CategoryService();
 
+type RouteContext = {
+  params: { id: string } | Promise<{ id: string }>;
+};
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
   try {
-    const category = await categoryService.getCategoryById(params.id);
+    const { id } = await params;
+    const category = await categoryService.getCategoryById(id);
     
     if (!category) {
       return NextResponse.json(
@@ -29,9 +34,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
   try {
+    const { id } = await params;
     const user = authenticateToken(request);
     
     if (user.role !== 'ADMIN') {
@@ -42,7 +48,7 @@ export async function PUT(
     }
 
     const data = await request.json();
-    const category = await categoryService.updateCategory(params.id, data);
+    const category = await categoryService.updateCategory(id, data);
     
     return NextResponse.json(category, { status: 200 });
   } catch (error) {
@@ -55,9 +61,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
   try {
+    const { id } = await params;
     const user = authenticateToken(request);
     
     if (user.role !== 'ADMIN') {
@@ -67,7 +74,7 @@ export async function DELETE(
       );
     }
 
-    const category = await categoryService.deleteCategory(params.id);
+    const category = await categoryService.deleteCategory(id);
     
     return NextResponse.json(category, { status: 200 });
   } catch (error) {

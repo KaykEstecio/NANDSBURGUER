@@ -4,12 +4,17 @@ import { authenticateToken } from '@/lib/auth-middleware';
 
 const productService = new ProductService();
 
+type RouteContext = {
+  params: { id: string } | Promise<{ id: string }>;
+};
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
   try {
-    const product = await productService.getProductById(params.id);
+    const { id } = await params;
+    const product = await productService.getProductById(id);
     
     if (!product) {
       return NextResponse.json(
@@ -29,9 +34,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
   try {
+    const { id } = await params;
     const user = authenticateToken(request);
     
     if (user.role !== 'ADMIN') {
@@ -42,7 +48,7 @@ export async function PUT(
     }
 
     const data = await request.json();
-    const product = await productService.updateProduct(params.id, data);
+    const product = await productService.updateProduct(id, data);
     
     return NextResponse.json(product, { status: 200 });
   } catch (error) {
@@ -55,9 +61,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
   try {
+    const { id } = await params;
     const user = authenticateToken(request);
     
     if (user.role !== 'ADMIN') {
@@ -67,7 +74,7 @@ export async function DELETE(
       );
     }
 
-    const product = await productService.deleteProduct(params.id);
+    const product = await productService.deleteProduct(id);
     
     return NextResponse.json(product, { status: 200 });
   } catch (error) {

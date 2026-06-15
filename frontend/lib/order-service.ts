@@ -35,6 +35,7 @@ export class OrderService {
         }
       },
       include: {
+        user: { select: { id: true, name: true, email: true } },
         items: {
           include: { product: { include: { category: true } } }
         }
@@ -54,6 +55,7 @@ export class OrderService {
     return prisma.order.findMany({
       where: { userId },
       include: {
+        user: { select: { id: true, name: true, email: true } },
         items: {
           include: { product: { include: { category: true } } }
         }
@@ -69,6 +71,7 @@ export class OrderService {
     return prisma.order.findUnique({
       where,
       include: {
+        user: { select: { id: true, name: true, email: true } },
         items: {
           include: { product: { include: { category: true } } }
         }

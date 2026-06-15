@@ -24,7 +24,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const data = await apiClient.getProducts(skip, take);
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : data.products || []);
     } finally {
       setIsLoading(false);
     }

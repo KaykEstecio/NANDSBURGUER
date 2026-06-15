@@ -22,12 +22,13 @@ function getProductImage(categoryName: string | undefined, name: string) {
 }
 
 export default function CheckoutPage() {
-  const { items, total } = useCart();
+  const { items, total, fetchCart } = useCart();
   const { createOrder } = useOrders();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [hasLoadedCart, setHasLoadedCart] = useState(false);
   const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>('pickup');
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash' | 'pix'>('card');
   const [customerData, setCustomerData] = useState({
@@ -43,21 +44,32 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
+    if (isAuthLoading) return;
+
     if (!isAuthenticated) {
       router.push('/auth/login');
+      return;
     }
+
+    fetchCart().finally(() => setHasLoadedCart(true));
+  }, [isAuthLoading, isAuthenticated, fetchCart, router]);
+
+  useEffect(() => {
+    if (isAuthLoading || !isAuthenticated || isLoading || !hasLoadedCart) return;
+
     if (items.length === 0) {
       router.push('/cart');
     }
-  }, [isAuthenticated, items.length, router]);
+  }, [hasLoadedCart, isAuthLoading, isAuthenticated, isLoading, items.length, router]);
 
   async function handleCreateOrder() {
     setIsLoading(true);
     setError('');
 
     try {
-      await createOrder();
-      router.push('/orders');
+      const order = await createOrder();
+      await fetchCart();
+      router.push(`/orders/${order.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao criar pedido');
     } finally {
@@ -65,7 +77,7 @@ export default function CheckoutPage() {
     }
   }
 
-  if (!isAuthenticated || items.length === 0) {
+  if (isAuthLoading || !isAuthenticated || !hasLoadedCart || items.length === 0) {
     return null;
   }
 

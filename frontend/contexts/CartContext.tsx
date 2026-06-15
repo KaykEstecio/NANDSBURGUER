@@ -26,8 +26,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const response = await apiClient.getCart();
-      setItems(response.items || []);
-      setTotal(response.total || 0);
+      const cartItems = Array.isArray(response) ? response : response.items || [];
+      const cartTotal =
+        typeof response.total === 'number'
+          ? response.total
+          : cartItems.reduce(
+              (sum: number, item: CartItemType) =>
+                sum + (item.product?.price || 0) * item.quantity,
+              0
+            );
+
+      setItems(cartItems);
+      setTotal(cartTotal);
     } catch (error) {
       console.error('Failed to fetch cart:', error);
     } finally {

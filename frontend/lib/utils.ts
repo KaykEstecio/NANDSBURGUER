@@ -56,7 +56,7 @@ export const groupBy = <T,>(
 };
 
 export const unique = <T,>(array: T[], key?: keyof T): T[] => {
-  if (!key) return [...new Set(array)];
+  if (!key) return Array.from(new Set(array));
   return array.filter((item, index, self) =>
     index === self.findIndex((t) => t[key] === item[key])
   );

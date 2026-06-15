@@ -47,6 +47,7 @@ lerna-debug.log*
 .cache/
 .eslintcache
 .next/cache/
+*.tsbuildinfo
 
 # Prisma
 prisma/dev.db

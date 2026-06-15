@@ -4,14 +4,19 @@ import { authenticateToken } from '@/lib/auth-middleware';
 
 const orderService = new OrderService();
 
+type RouteContext = {
+  params: { id: string } | Promise<{ id: string }>;
+};
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
   try {
+    const { id } = await params;
     const user = authenticateToken(request);
     const order = await orderService.getOrderById(
-      params.id,
+      id,
       user.role === 'ADMIN' ? undefined : user.userId
     );
 

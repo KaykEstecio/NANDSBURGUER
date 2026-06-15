@@ -7,9 +7,13 @@ const cartService = new CartService();
 export async function GET(request: NextRequest) {
   try {
     const user = authenticateToken(request);
-    const cart = await cartService.getCart(user.userId);
+    const items = await cartService.getCart(user.userId);
+    const total = items.reduce(
+      (sum, item) => sum + item.product.price * item.quantity,
+      0
+    );
     
-    return NextResponse.json(cart, { status: 200 });
+    return NextResponse.json({ items, total }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
@@ -47,10 +51,8 @@ export async function DELETE(request: NextRequest) {
     const productId = searchParams.get('productId');
 
     if (!productId) {
-      return NextResponse.json(
-        { error: 'Product ID is required' },
-        { status: 400 }
-      );
+      await cartService.clearCart(user.userId);
+      return NextResponse.json({ success: true }, { status: 200 });
     }
 
     await cartService.removeFromCart(user.userId, productId);

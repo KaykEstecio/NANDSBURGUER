@@ -4,11 +4,16 @@ import { authenticateToken } from '@/lib/auth-middleware';
 
 const orderService = new OrderService();
 
+type RouteContext = {
+  params: { id: string } | Promise<{ id: string }>;
+};
+
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
   try {
+    const { id } = await params;
     const user = authenticateToken(request);
 
     if (user.role !== 'ADMIN') {
@@ -35,7 +40,7 @@ export async function PUT(
       );
     }
 
-    const order = await orderService.updateOrderStatus(params.id, status);
+    const order = await orderService.updateOrderStatus(id, status);
     return NextResponse.json(order, { status: 200 });
   } catch (error) {
     return NextResponse.json(

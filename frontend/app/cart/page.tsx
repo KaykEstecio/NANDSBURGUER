@@ -8,16 +8,18 @@ import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
   const { items, total, fetchCart, updateItem, removeItem, isLoading } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (isAuthLoading) return;
+
     if (!isAuthenticated) {
       router.push('/auth/login');
       return;
     }
     fetchCart();
-  }, [isAuthenticated, fetchCart, router]);
+  }, [isAuthLoading, isAuthenticated, fetchCart, router]);
 
   const handleQuantityChange = async (productId: string, newQuantity: number) => {
     if (newQuantity === 0) {
@@ -27,7 +29,7 @@ export default function CartPage() {
     }
   };
 
-  if (!isAuthenticated) {
+  if (isAuthLoading || !isAuthenticated) {
     return null;
   }
 
@@ -97,7 +99,7 @@ export default function CartPage() {
                       </button>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-[#D62828]">R$ {(item.product?.price ?? 0 * item.quantity).toFixed(2)}</p>
+                      <p className="text-lg font-bold text-[#D62828]">R$ {((item.product?.price ?? 0) * item.quantity).toFixed(2)}</p>
                       <button
                         onClick={() => removeItem(item.productId)}
                         className="mt-2 text-sm font-semibold text-[#D62828] hover:text-[#b11f1f]"

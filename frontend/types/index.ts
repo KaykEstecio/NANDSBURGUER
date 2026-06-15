@@ -46,6 +46,7 @@ export interface OrderItem {
 export interface Order {
   id: string;
   userId: string;
+  user?: Pick<User, 'id' | 'name' | 'email'>;
   status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED';
   total: number;
   items?: OrderItem[];

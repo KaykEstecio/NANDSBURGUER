@@ -1,16 +1,11 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Inter, Montserrat, Poppins } from 'next/font/google';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ProductProvider } from '../contexts/ProductContext';
 import { CartProvider } from '../contexts/CartContext';
 import { OrderProvider } from '../contexts/OrderContext';
 import { NavBar } from '../components/NavBar';
 import { Footer } from '../components/Footer';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat' });
-const poppins = Poppins({ subsets: ['latin'], weight: ['400', '600', '700'], variable: '--font-poppins' });
 
 export const metadata: Metadata = {
   title: 'Nands Burger | Hamburgueria',
@@ -23,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${montserrat.variable} ${poppins.variable}`}>
+    <html lang="pt-BR">
       <body>
         <AuthProvider>
           <ProductProvider>

@@ -1,8 +1,8 @@
 'use client';
 
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { redirect } from 'next/navigation';
-import { OrderManagement } from '../../components/OrderManagement';
+import { OrderManagement } from '@/components/OrderManagement';
 
 export default function AdminOrdersPage() {
   const { user, isLoading } = useAuth();

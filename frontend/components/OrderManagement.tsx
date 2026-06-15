@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../services/api';
 import { Order, OrderItem, Product } from '../types';
+import { formatCurrency, getInvoiceAccessKey, getInvoiceNumber } from '../lib/invoice';
 
 interface OrderWithUser extends Order {
   user?: {
@@ -217,6 +218,28 @@ export function OrderManagement() {
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wide">Total</p>
                     <p className="text-2xl font-bold text-[#D62828]">R$ {selectedOrder.total.toFixed(2)}</p>
+                  </div>
+
+                  <div className="print-invoice rounded-xl bg-[#f9f1e8] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wide">Nota fiscal</p>
+                        <p className="mt-1 font-semibold text-[#111]">{getInvoiceNumber(selectedOrder)}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => window.print()}
+                        className="print-hide rounded-full bg-[#F77F00] px-3 py-1 text-xs font-semibold text-[#000]"
+                      >
+                        Imprimir
+                      </button>
+                    </div>
+                    <p className="mt-3 break-all font-mono text-[11px] text-gray-500">
+                      Chave: {getInvoiceAccessKey(selectedOrder)}
+                    </p>
+                    <p className="mt-2 text-xs text-gray-500">
+                      Total da nota: {formatCurrency(selectedOrder.total)}
+                    </p>
                   </div>
                 </div>
 

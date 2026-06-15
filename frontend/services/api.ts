@@ -75,8 +75,8 @@ class ApiClient {
   }
 
   async getProductStock(id: string) {
-    const response = await this.client.get(`/products/${id}/stock`);
-    return response.data;
+    const response = await this.client.get(`/products/${id}`);
+    return response.data.stock;
   }
 
   // Categories
@@ -112,7 +112,7 @@ class ApiClient {
   }
 
   async addToCart(productId: string, quantity: number) {
-    const response = await this.client.post('/cart/items', {
+    const response = await this.client.post('/cart', {
       productId,
       quantity
     });
@@ -120,14 +120,17 @@ class ApiClient {
   }
 
   async updateCartItem(productId: string, quantity: number) {
-    const response = await this.client.put(`/cart/items/${productId}`, {
+    const response = await this.client.put(`/cart/${productId}`, {
+      productId,
       quantity
     });
     return response.data;
   }
 
   async removeFromCart(productId: string) {
-    const response = await this.client.delete(`/cart/items/${productId}`);
+    const response = await this.client.delete('/cart', {
+      params: { productId }
+    });
     return response.data;
   }
 
@@ -152,8 +155,13 @@ class ApiClient {
     return response.data;
   }
 
+  async getInvoice(orderId: string) {
+    const response = await this.client.get(`/orders/${orderId}/invoice`);
+    return response.data;
+  }
+
   async getAllOrders(skip = 0, take = 10) {
-    const response = await this.client.get('/orders/admin/all', {
+    const response = await this.client.get('/orders', {
       params: { skip, take }
     });
     return response.data;
