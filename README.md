@@ -156,11 +156,20 @@ O comando de build da Vercel roda:
 
 ```powershell
 prisma generate
-prisma migrate deploy
 next build
 ```
 
-Depois do primeiro deploy, popule o banco de producao uma vez:
+Antes de reimplantar, confirme que `DATABASE_URL` esta cadastrada em **Settings > Environment Variables** da Vercel. Se essa variavel estiver ausente ou com uma URL invalida, o Prisma falha durante `prisma generate`.
+
+Depois que o deploy compilar, aplique as migrations no banco de producao uma vez:
+
+```powershell
+cd frontend
+$env:DATABASE_URL="sua_url_do_postgres_de_producao"
+npm run prisma:deploy
+```
+
+Depois popule o banco de producao uma vez:
 
 ```powershell
 cd frontend
