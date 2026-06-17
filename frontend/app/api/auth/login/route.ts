@@ -1,25 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { AuthService } from '@/lib/auth-service';
+import { handleApiError, successResponse } from '@/lib/api-helpers';
+import { loginSchema } from '@/lib/validators';
 
 const authService = new AuthService();
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      );
-    }
-
-    const result = await authService.login({ email, password });
-    return NextResponse.json(result, { status: 200 });
+    const input = loginSchema.parse(await request.json());
+    const result = await authService.login(input);
+    return successResponse(result);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 401 }
-    );
+    return handleApiError(error);
   }
 }

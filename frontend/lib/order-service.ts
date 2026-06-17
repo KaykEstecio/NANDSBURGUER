@@ -1,81 +1,88 @@
+import { OrderStatus, Prisma } from '@prisma/client';
+import { ApiError } from './api-helpers';
+import { assertCartCanCheckout, calculateCartTotal } from './order-rules';
 import { prisma } from './prisma';
-import { CartService } from './cart-service';
-import { ProductService } from './product-service';
 
-const cartService = new CartService();
-const productService = new ProductService();
+const orderInclude = {
+  user: { select: { id: true, name: true, email: true } },
+  items: {
+    include: { product: { include: { category: true } } }
+  }
+} satisfies Prisma.OrderInclude;
 
 export class OrderService {
   async createOrder(userId: string) {
-    const cart = await cartService.getCart(userId);
+    return prisma.$transaction(async (tx) => {
+      const cart = await tx.cartItem.findMany({
+        where: { userId },
+        include: { product: true },
+        orderBy: { createdAt: 'desc' }
+      });
 
-    if (cart.length === 0) {
-      throw new Error('Cart is empty');
-    }
-
-    for (const item of cart) {
-      if (item.product.stock < item.quantity) {
-        throw new Error(`Insufficient stock for ${item.product.name}`);
+      try {
+        assertCartCanCheckout(cart);
+      } catch (error) {
+        throw new ApiError(
+          error instanceof Error ? error.message : 'Carrinho invalido',
+          cart.length === 0 ? 400 : 409,
+          cart.length === 0 ? 'EMPTY_CART' : 'INSUFFICIENT_STOCK'
+        );
       }
-    }
 
-    const total = await cartService.getCartTotal(userId);
+      const total = calculateCartTotal(cart);
 
-    const order = await prisma.order.create({
-      data: {
-        userId,
-        status: 'PENDING',
-        total,
-        items: {
-          create: cart.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.product.price
-          }))
-        }
-      },
-      include: {
-        user: { select: { id: true, name: true, email: true } },
-        items: {
-          include: { product: { include: { category: true } } }
+      for (const item of cart) {
+        const updated = await tx.product.updateMany({
+          where: { id: item.productId, stock: { gte: item.quantity } },
+          data: { stock: { decrement: item.quantity } }
+        });
+
+        if (updated.count === 0) {
+          throw new ApiError(
+            `Estoque insuficiente para ${item.product.name}`,
+            409,
+            'INSUFFICIENT_STOCK'
+          );
         }
       }
+
+      const order = await tx.order.create({
+        data: {
+          userId,
+          status: 'PENDING',
+          total,
+          items: {
+            create: cart.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.product.price
+            }))
+          }
+        },
+        include: orderInclude
+      });
+
+      await tx.cartItem.deleteMany({ where: { userId } });
+
+      return order;
     });
-
-    for (const item of cart) {
-      await productService.decreaseStock(item.productId, item.quantity);
-    }
-
-    await cartService.clearCart(userId);
-
-    return order;
   }
 
   async getOrders(userId: string) {
     return prisma.order.findMany({
       where: { userId },
-      include: {
-        user: { select: { id: true, name: true, email: true } },
-        items: {
-          include: { product: { include: { category: true } } }
-        }
-      },
+      include: orderInclude,
       orderBy: { createdAt: 'desc' }
     });
   }
 
   async getOrderById(id: string, userId?: string) {
-    const where: any = { id };
+    const where: Prisma.OrderWhereInput = { id };
     if (userId) where.userId = userId;
 
-    return prisma.order.findUnique({
+    return prisma.order.findFirst({
       where,
-      include: {
-        user: { select: { id: true, name: true, email: true } },
-        items: {
-          include: { product: { include: { category: true } } }
-        }
-      }
+      include: orderInclude
     });
   }
 
@@ -83,32 +90,16 @@ export class OrderService {
     return prisma.order.findMany({
       skip,
       take,
-      include: {
-        user: { select: { id: true, name: true, email: true } },
-        items: {
-          include: { product: { include: { category: true } } }
-        }
-      },
+      include: orderInclude,
       orderBy: { createdAt: 'desc' }
     });
   }
 
-  async updateOrderStatus(id: string, status: string) {
-    const validStatuses = ['PENDING', 'PAID', 'FAILED', 'CANCELLED'];
-
-    if (!validStatuses.includes(status)) {
-      throw new Error('Invalid status');
-    }
-
+  async updateOrderStatus(id: string, status: OrderStatus) {
     return prisma.order.update({
       where: { id },
-      data: { status: status as any },
-      include: {
-        user: { select: { id: true, name: true, email: true } },
-        items: {
-          include: { product: { include: { category: true } } }
-        }
-      }
+      data: { status },
+      include: orderInclude
     });
   }
 }

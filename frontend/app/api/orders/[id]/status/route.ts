@@ -1,11 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { OrderService } from '@/lib/order-service';
 import { authenticateToken } from '@/lib/auth-middleware';
+import { forbiddenResponse, handleApiError, successResponse } from '@/lib/api-helpers';
+import { orderStatusSchema } from '@/lib/validators';
 
 const orderService = new OrderService();
 
 type RouteContext = {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 };
 
 export async function PUT(
@@ -17,35 +19,14 @@ export async function PUT(
     const user = authenticateToken(request);
 
     if (user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Only admins can update order status' },
-        { status: 403 }
-      );
+      return forbiddenResponse();
     }
 
-    const { status } = await request.json();
-
-    if (!status) {
-      return NextResponse.json(
-        { error: 'Status is required' },
-        { status: 400 }
-      );
-    }
-
-    const validStatuses = ['PENDING', 'PAID', 'FAILED', 'CANCELLED'];
-    if (!validStatuses.includes(status)) {
-      return NextResponse.json(
-        { error: 'Invalid status. Use: PENDING, PAID, FAILED, CANCELLED' },
-        { status: 400 }
-      );
-    }
+    const { status } = orderStatusSchema.parse(await request.json());
 
     const order = await orderService.updateOrderStatus(id, status);
-    return NextResponse.json(order, { status: 200 });
+    return successResponse(order);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
 }

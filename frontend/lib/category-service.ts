@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { CategoryCreateInput, CategoryUpdateInput } from './validators';
 
 export class CategoryService {
   async getCategories() {
@@ -15,14 +16,14 @@ export class CategoryService {
     });
   }
 
-  async createCategory(data: any) {
+  async createCategory(data: CategoryCreateInput) {
     return prisma.category.create({
       data,
       include: { products: true }
     });
   }
 
-  async updateCategory(id: string, data: any) {
+  async updateCategory(id: string, data: CategoryUpdateInput) {
     return prisma.category.update({
       where: { id },
       data,

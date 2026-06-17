@@ -45,7 +45,7 @@ model Product {
   id          String   @id @default(cuid())
   name        String
   description String?
-  price       Float
+  price       Decimal  @db.Decimal(10, 2)
   stock       Int
   categoryId  String
   createdById String
@@ -87,7 +87,7 @@ model Order {
   id        String      @id @default(cuid())
   userId    String
   status    OrderStatus @default(PENDING)
-  total     Float
+  total     Decimal     @db.Decimal(10, 2)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
@@ -102,7 +102,7 @@ model OrderItem {
   orderId   String
   productId String
   quantity  Int
-  price     Float
+  price     Decimal  @db.Decimal(10, 2)
   createdAt DateTime @default(now())
 
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)

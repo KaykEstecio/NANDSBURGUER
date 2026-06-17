@@ -1,11 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { ProductService } from '@/lib/product-service';
 import { authenticateToken } from '@/lib/auth-middleware';
+import {
+  forbiddenResponse,
+  handleApiError,
+  notFoundResponse,
+  successResponse
+} from '@/lib/api-helpers';
+import { productUpdateSchema } from '@/lib/validators';
 
 const productService = new ProductService();
 
 type RouteContext = {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 };
 
 export async function GET(
@@ -17,18 +24,12 @@ export async function GET(
     const product = await productService.getProductById(id);
     
     if (!product) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      );
+      return notFoundResponse('Produto');
     }
 
-    return NextResponse.json(product, { status: 200 });
+    return successResponse(product);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -41,21 +42,15 @@ export async function PUT(
     const user = authenticateToken(request);
     
     if (user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Only admins can update products' },
-        { status: 403 }
-      );
+      return forbiddenResponse();
     }
 
-    const data = await request.json();
+    const data = productUpdateSchema.parse(await request.json());
     const product = await productService.updateProduct(id, data);
     
-    return NextResponse.json(product, { status: 200 });
+    return successResponse(product);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -68,19 +63,13 @@ export async function DELETE(
     const user = authenticateToken(request);
     
     if (user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Only admins can delete products' },
-        { status: 403 }
-      );
+      return forbiddenResponse();
     }
 
     const product = await productService.deleteProduct(id);
     
-    return NextResponse.json(product, { status: 200 });
+    return successResponse(product);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
 }

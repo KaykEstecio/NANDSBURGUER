@@ -9,7 +9,7 @@ import { Footer } from '../components/Footer';
 
 export const metadata: Metadata = {
   title: 'Nands Burger | Hamburgueria',
-  description: 'Nands Burger - hamburgueria, entregas e retirada.'
+  description: 'Nands Burger - hamburgueria artesanal com pedidos online, delivery e retirada.'
 };
 
 export default function RootLayout({
@@ -24,9 +24,9 @@ export default function RootLayout({
           <ProductProvider>
             <CartProvider>
               <OrderProvider>
-                <div className="flex flex-col min-h-screen bg-[#fff8f0] text-[#111111]">
+                <div className="flex min-h-screen flex-col text-foreground">
                   <NavBar />
-                  <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6">
+                  <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-5 sm:px-6 lg:px-8">
                     {children}
                   </main>
                   <Footer />

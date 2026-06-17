@@ -1,4 +1,6 @@
 import { prisma } from './prisma';
+import { ApiError } from './api-helpers';
+import { calculateCartTotal } from './order-rules';
 
 export class CartService {
   async getCart(userId: string) {
@@ -11,7 +13,7 @@ export class CartService {
 
   async addToCart(userId: string, productId: string, quantity: number) {
     if (quantity <= 0) {
-      throw new Error('Quantity must be greater than zero');
+      throw new ApiError('Quantidade deve ser maior que zero', 400, 'INVALID_QUANTITY');
     }
 
     const product = await prisma.product.findUnique({
@@ -19,7 +21,7 @@ export class CartService {
     });
 
     if (!product) {
-      throw new Error('Product not found');
+      throw new ApiError('Produto nao encontrado', 404, 'PRODUCT_NOT_FOUND');
     }
 
     const existingItem = await prisma.cartItem.findUnique({
@@ -30,7 +32,7 @@ export class CartService {
 
     const nextQuantity = (existingItem?.quantity || 0) + quantity;
     if (nextQuantity > product.stock) {
-      throw new Error('Insufficient stock');
+      throw new ApiError('Estoque insuficiente', 409, 'INSUFFICIENT_STOCK');
     }
 
     if (existingItem) {
@@ -66,11 +68,11 @@ export class CartService {
     });
 
     if (!product) {
-      throw new Error('Product not found');
+      throw new ApiError('Produto nao encontrado', 404, 'PRODUCT_NOT_FOUND');
     }
 
     if (quantity > product.stock) {
-      throw new Error('Insufficient stock');
+      throw new ApiError('Estoque insuficiente', 409, 'INSUFFICIENT_STOCK');
     }
 
     return prisma.cartItem.update({
@@ -94,6 +96,6 @@ export class CartService {
       include: { product: true }
     });
 
-    return items.reduce((total, item) => total + item.product.price * item.quantity, 0);
+    return calculateCartTotal(items);
   }
 }

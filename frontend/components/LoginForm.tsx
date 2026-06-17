@@ -13,9 +13,8 @@ export function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
 
-  function validateEmail(email: string) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  function validateEmail(value: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -24,22 +23,17 @@ export function LoginForm() {
     setEmailError('');
 
     if (!email.trim()) {
-      setEmailError('Email é obrigatório');
+      setEmailError('Email e obrigatorio');
       return;
     }
 
     if (!validateEmail(email)) {
-      setEmailError('Email inválido');
+      setEmailError('Email invalido');
       return;
     }
 
     if (!password.trim()) {
-      setError('Senha é obrigatória');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Senha deve ter pelo menos 6 caracteres');
+      setError('Senha e obrigatoria');
       return;
     }
 
@@ -56,21 +50,27 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full rounded-[2rem] border border-[#F77F00]/30 bg-white/95 p-10 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.35)] max-w-md backdrop-blur-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="w-full max-w-md rounded-[2rem] border border-[#F77F00]/30 bg-white/95 p-6 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.35)] backdrop-blur-sm sm:p-10"
+    >
       <div className="mb-8 space-y-3 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#D62828] text-3xl text-white shadow-lg shadow-[#D62828]/30">🍔</div>
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#D62828] text-3xl font-black text-white shadow-lg shadow-[#D62828]/30">
+          N
+        </div>
         <h2 className="text-3xl font-bold">Bem-vindo de volta</h2>
-        <p className="text-sm text-gray-600">Faça login e continue a sua jornada de sabor.</p>
+        <p className="text-sm text-gray-600">Faca login e continue a sua jornada de sabor.</p>
       </div>
 
-      {error && <div className="bg-[#ffe3e1] text-[#8b1818] p-3 rounded-2xl mb-5 border border-[#f7c0bf] text-sm flex items-center gap-2">
-        <span>⚠️</span>
-        {error}
-      </div>}
+      {error && (
+        <div className="mb-5 rounded-2xl border border-[#f7c0bf] bg-[#ffe3e1] p-3 text-sm text-[#8b1818]">
+          {error}
+        </div>
+      )}
 
       <div className="space-y-5">
         <div>
-          <label className="block text-sm font-semibold text-[#111111] mb-2">Email</label>
+          <label className="mb-2 block text-sm font-semibold text-[#111111]">Email</label>
           <input
             type="email"
             value={email}
@@ -84,16 +84,16 @@ export function LoginForm() {
             }`}
             required
           />
-          {emailError && <p className="text-[#D62828] text-xs mt-1">{emailError}</p>}
+          {emailError && <p className="mt-1 text-xs text-[#D62828]">{emailError}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-[#111111] mb-2">Senha</label>
+          <label className="mb-2 block text-sm font-semibold text-[#111111]">Senha</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••"
+            placeholder="******"
             className="w-full rounded-3xl border border-[#ddd] bg-[#faf3ed] px-4 py-3 text-sm outline-none transition focus:border-[#D62828]"
             required
           />
@@ -105,11 +105,14 @@ export function LoginForm() {
         disabled={isLoading || !email || !password}
         className="mt-8 w-full rounded-full bg-[#D62828] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#b11f1f] disabled:cursor-not-allowed disabled:bg-[#f3a29c]"
       >
-        {isLoading ? '⏳ Entrando...' : '🚀 Entrar'}
+        {isLoading ? 'Entrando...' : 'Entrar'}
       </button>
 
-      <p className="text-center text-xs text-gray-600 mt-6">
-        Não tem conta? <a href="/auth/register" className="text-[#D62828] font-semibold hover:underline">Cadastre-se aqui</a>
+      <p className="mt-6 text-center text-xs text-gray-600">
+        Nao tem conta?{' '}
+        <a href="/auth/register" className="font-semibold text-[#D62828] hover:underline">
+          Cadastre-se aqui
+        </a>
       </p>
     </form>
   );

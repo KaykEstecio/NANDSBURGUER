@@ -6,6 +6,16 @@ import { useRouter } from 'next/navigation';
 import { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { formatCurrency } from '../lib/utils';
+import { Badge } from './ui/badge';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from './ui/card';
+import { Button } from './ui/button';
 
 interface ProductCardProps {
   product: Product;
@@ -48,7 +58,8 @@ const PRODUCT_IMAGES: Record<string, string> = {
   'Misto Nands': 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=80'
 };
 
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80';
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80';
 
 function getProductImage(product: Product) {
   if (PRODUCT_IMAGES[product.name]) {
@@ -57,6 +68,19 @@ function getProductImage(product: Product) {
 
   const category = product.category?.name?.toLowerCase() || '';
   return CATEGORY_IMAGES[category] ?? FALLBACK_IMAGE;
+}
+
+function AddIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" data-icon aria-hidden="true">
+      <path
+        d="M12 5v14M5 12h14"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -87,45 +111,58 @@ export function ProductCard({ product }: ProductCardProps) {
     }
   }
 
+  const available = product.stock > 0;
+
   return (
-    <div className="flex h-full flex-col rounded-[2rem] border border-[#f1e4db] bg-white shadow-xl transition hover:-translate-y-1 hover:shadow-2xl">
-      <Link href={`/products/${product.id}`} className="flex-1">
-        <div className="flex h-full flex-col p-6">
+    <Card className="group flex h-full overflow-hidden rounded-[1.25rem] bg-card shadow-grill transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:shadow-2xl">
+      <Link href={`/products/${product.id}`} className="flex flex-1 flex-col">
+        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           <div
-            className="relative mb-6 h-64 overflow-hidden rounded-[1.5rem] bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105"
             style={{ backgroundImage: `url(${getProductImage(product)})` }}
-          >
-            <div className="absolute inset-0 bg-black/25" />
-            <span className="absolute left-4 top-4 rounded-full bg-[#D62828] px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white shadow-lg shadow-black/20">
-              {product.category?.name || 'Produto'}
-            </span>
-          </div>
-
-          <h3 className="mb-3 text-2xl font-bold text-[#111111]">{product.name}</h3>
-          <p className="mb-6 line-clamp-3 flex-1 text-sm text-[#555555]">
-            {product.description || 'Produto preparado pela Nands Burger.'}
-          </p>
-
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-2xl font-extrabold text-[#D62828]">
-              R$ {product.price.toFixed(2)}
-            </span>
-            <span className={`rounded-full px-3 py-1 text-sm font-semibold ${product.stock > 0 ? 'bg-[#F77F00]/15 text-[#111111]' : 'bg-[#D62828]/15 text-[#8b1818]'}`}>
-              {product.stock > 0 ? 'Em estoque' : 'Esgotado'}
-            </span>
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/[0.62] via-black/10 to-transparent" />
+          <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+            <Badge>{product.category?.name || 'Produto'}</Badge>
+            {!available && <Badge variant="destructive">Esgotado</Badge>}
           </div>
         </div>
+
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-4">
+            <CardTitle className="text-2xl">{product.name}</CardTitle>
+            <span className="shrink-0 rounded-2xl bg-secondary/[0.18] px-3 py-2 text-lg font-black text-primary">
+              {formatCurrency(product.price)}
+            </span>
+          </div>
+        </CardHeader>
+
+        <CardContent className="flex flex-1 flex-col gap-4">
+          <p className="line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-muted-foreground">
+            {product.description || 'Produto preparado na chapa da Nands Burguer.'}
+          </p>
+          <div className="flex items-center justify-between rounded-2xl bg-muted/70 px-4 py-3 text-sm">
+            <span className="font-bold text-foreground">
+              {available ? 'Saindo da chapa' : 'Volta em breve'}
+            </span>
+            <span className="text-muted-foreground">
+              {available ? `${product.stock} un.` : 'sem estoque'}
+            </span>
+          </div>
+        </CardContent>
       </Link>
 
-      <button
-        onClick={handleAddToCart}
-        disabled={!product.stock || isAdding}
-        className="m-6 mt-0 rounded-full bg-[#D62828] px-5 py-4 text-sm font-semibold text-white transition hover:bg-[#b11f1f] disabled:cursor-not-allowed disabled:bg-[#f3a29a]"
-      >
-        {isAdding ? 'Adicionando...' : 'Adicionar ao carrinho'}
-      </button>
-
-      {error && <p className="px-6 pb-4 text-sm text-[#D62828]">{error}</p>}
-    </div>
+      <CardFooter className="flex-col items-stretch gap-3">
+        <Button
+          onClick={handleAddToCart}
+          disabled={!available || isAdding}
+          className="w-full"
+        >
+          <AddIcon />
+          {isAdding ? 'Adicionando...' : 'Adicionar'}
+        </Button>
+        {error && <p className="text-center text-sm font-semibold text-primary">{error}</p>}
+      </CardFooter>
+    </Card>
   );
 }

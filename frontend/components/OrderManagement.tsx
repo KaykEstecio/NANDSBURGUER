@@ -3,7 +3,12 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../services/api';
 import { Order, OrderItem, Product } from '../types';
-import { formatCurrency, getInvoiceAccessKey, getInvoiceNumber } from '../lib/invoice';
+import {
+  formatCurrency,
+  getDisplayOrderNumber,
+  getInvoiceAccessKey,
+  getInvoiceNumber
+} from '../lib/invoice';
 
 interface OrderWithUser extends Order {
   user?: {
@@ -72,7 +77,8 @@ export function OrderManagement() {
         setSelectedOrder(updatedOrder);
       }
 
-      alert(`Pedido #${orderId.slice(0, 8)} atualizado para ${newStatus}`);
+      const displayOrder = orders.find((order) => order.id === orderId);
+      alert(`Pedido #${displayOrder ? getDisplayOrderNumber(displayOrder) : '----'} atualizado para ${newStatus}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao atualizar status');
     } finally {
@@ -100,6 +106,7 @@ export function OrderManagement() {
       const query = searchQuery.toLowerCase();
       return (
         order.id.toLowerCase().includes(query) ||
+        getDisplayOrderNumber(order).includes(query) ||
         order.user?.name.toLowerCase().includes(query) ||
         order.user?.email.toLowerCase().includes(query)
       );
@@ -178,7 +185,9 @@ export function OrderManagement() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <p className="font-mono text-xs text-gray-500">#{order.id.slice(0, 8)}</p>
+                          <p className="font-semibold text-sm text-[#111111]">
+                            Pedido #{getDisplayOrderNumber(order)}
+                          </p>
                           <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${statusColors[order.status]}`}>
                             {statusBadges[order.status]}
                           </span>
@@ -205,8 +214,11 @@ export function OrderManagement() {
                 
                 <div className="space-y-4 mb-6">
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">ID do Pedido</p>
-                    <p className="font-mono text-sm break-all">{selectedOrder.id}</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Numero do pedido</p>
+                    <p className="text-lg font-bold text-[#111111]">#{getDisplayOrderNumber(selectedOrder)}</p>
+                    <p className="mt-1 font-mono text-[11px] break-all text-gray-400">
+                      ID tecnico: {selectedOrder.id}
+                    </p>
                   </div>
 
                   <div>

@@ -1,17 +1,8 @@
 import { prisma } from './prisma';
 import { generateToken } from './jwt';
 import * as bcrypt from 'bcryptjs';
-
-interface RegisterInput {
-  email: string;
-  password: string;
-  name: string;
-}
-
-interface LoginInput {
-  email: string;
-  password: string;
-}
+import { ApiError } from './api-helpers';
+import { LoginInput, RegisterInput } from './validators';
 
 export class AuthService {
   async register(input: RegisterInput) {
@@ -20,7 +11,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new Error('User already exists');
+      throw new ApiError('Usuario ja existe', 409, 'USER_ALREADY_EXISTS');
     }
 
     const hashedPassword = await bcrypt.hash(input.password, 10);
@@ -56,13 +47,13 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new ApiError('Credenciais invalidas', 401, 'INVALID_CREDENTIALS');
     }
 
     const isValidPassword = await bcrypt.compare(input.password, user.password);
 
     if (!isValidPassword) {
-      throw new Error('Invalid credentials');
+      throw new ApiError('Credenciais invalidas', 401, 'INVALID_CREDENTIALS');
     }
 
     const token = generateToken({
@@ -88,7 +79,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new ApiError('Usuario nao encontrado', 404, 'USER_NOT_FOUND');
     }
 
     return {

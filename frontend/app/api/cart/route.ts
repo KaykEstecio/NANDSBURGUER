@@ -1,6 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { CartService } from '@/lib/cart-service';
 import { authenticateToken } from '@/lib/auth-middleware';
+import { handleApiError, successResponse, createdResponse } from '@/lib/api-helpers';
+import { cartItemSchema } from '@/lib/validators';
+import { calculateCartTotal } from '@/lib/order-rules';
 
 const cartService = new CartService();
 
@@ -8,39 +11,23 @@ export async function GET(request: NextRequest) {
   try {
     const user = authenticateToken(request);
     const items = await cartService.getCart(user.userId);
-    const total = items.reduce(
-      (sum, item) => sum + item.product.price * item.quantity,
-      0
-    );
+    const total = calculateCartTotal(items);
     
-    return NextResponse.json({ items, total }, { status: 200 });
+    return successResponse({ items, total });
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 401 }
-    );
+    return handleApiError(error);
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const user = authenticateToken(request);
-    const { productId, quantity } = await request.json();
-
-    if (!productId || !quantity) {
-      return NextResponse.json(
-        { error: 'Product ID and quantity are required' },
-        { status: 400 }
-      );
-    }
+    const { productId, quantity } = cartItemSchema.parse(await request.json());
 
     const item = await cartService.addToCart(user.userId, productId, quantity);
-    return NextResponse.json(item, { status: 201 });
+    return createdResponse(item);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -52,15 +39,12 @@ export async function DELETE(request: NextRequest) {
 
     if (!productId) {
       await cartService.clearCart(user.userId);
-      return NextResponse.json({ success: true }, { status: 200 });
+      return successResponse({ cleared: true });
     }
 
     await cartService.removeFromCart(user.userId, productId);
-    return NextResponse.json({ success: true }, { status: 200 });
+    return successResponse({ removed: true });
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
 }

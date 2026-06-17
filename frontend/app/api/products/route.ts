@@ -1,23 +1,29 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { ProductService } from '@/lib/product-service';
 import { authenticateToken } from '@/lib/auth-middleware';
+import {
+  createdResponse,
+  forbiddenResponse,
+  handleApiError,
+  successResponse
+} from '@/lib/api-helpers';
+import { paginationQuerySchema, productCreateSchema } from '@/lib/validators';
 
 const productService = new ProductService();
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const skip = parseInt(searchParams.get('skip') || '0');
-    const take = parseInt(searchParams.get('take') || '10');
-    const categoryId = searchParams.get('categoryId');
+    const query = paginationQuerySchema.parse({
+      skip: searchParams.get('skip') ?? undefined,
+      take: searchParams.get('take') ?? undefined,
+      categoryId: searchParams.get('categoryId') ?? undefined
+    });
 
-    const result = await productService.getProducts(skip, take, categoryId || undefined);
-    return NextResponse.json(result, { status: 200 });
+    const result = await productService.getProducts(query.skip, query.take, query.categoryId);
+    return successResponse(result);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -26,20 +32,14 @@ export async function POST(request: NextRequest) {
     const user = authenticateToken(request);
     
     if (user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Only admins can create products' },
-        { status: 403 }
-      );
+      return forbiddenResponse();
     }
 
-    const data = await request.json();
+    const data = productCreateSchema.parse(await request.json());
     const product = await productService.createProduct(data, user.userId);
     
-    return NextResponse.json(product, { status: 201 });
+    return createdResponse(product);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
 }

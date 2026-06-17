@@ -1,11 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { CategoryService } from '@/lib/category-service';
 import { authenticateToken } from '@/lib/auth-middleware';
+import {
+  forbiddenResponse,
+  handleApiError,
+  notFoundResponse,
+  successResponse
+} from '@/lib/api-helpers';
+import { categoryUpdateSchema } from '@/lib/validators';
 
 const categoryService = new CategoryService();
 
 type RouteContext = {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 };
 
 export async function GET(
@@ -17,18 +24,12 @@ export async function GET(
     const category = await categoryService.getCategoryById(id);
     
     if (!category) {
-      return NextResponse.json(
-        { error: 'Category not found' },
-        { status: 404 }
-      );
+      return notFoundResponse('Categoria');
     }
 
-    return NextResponse.json(category, { status: 200 });
+    return successResponse(category);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -41,21 +42,15 @@ export async function PUT(
     const user = authenticateToken(request);
     
     if (user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Only admins can update categories' },
-        { status: 403 }
-      );
+      return forbiddenResponse();
     }
 
-    const data = await request.json();
+    const data = categoryUpdateSchema.parse(await request.json());
     const category = await categoryService.updateCategory(id, data);
     
-    return NextResponse.json(category, { status: 200 });
+    return successResponse(category);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -68,19 +63,13 @@ export async function DELETE(
     const user = authenticateToken(request);
     
     if (user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Only admins can delete categories' },
-        { status: 403 }
-      );
+      return forbiddenResponse();
     }
 
     const category = await categoryService.deleteCategory(id);
     
-    return NextResponse.json(category, { status: 200 });
+    return successResponse(category);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
 }

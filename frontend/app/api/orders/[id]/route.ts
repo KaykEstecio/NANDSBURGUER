@@ -1,11 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { OrderService } from '@/lib/order-service';
 import { authenticateToken } from '@/lib/auth-middleware';
+import { handleApiError, notFoundResponse, successResponse } from '@/lib/api-helpers';
 
 const orderService = new OrderService();
 
 type RouteContext = {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 };
 
 export async function GET(
@@ -21,17 +22,11 @@ export async function GET(
     );
 
     if (!order) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      );
+      return notFoundResponse('Pedido');
     }
 
-    return NextResponse.json(order, { status: 200 });
+    return successResponse(order);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

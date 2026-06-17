@@ -1,8 +1,11 @@
+import { Prisma } from '@prisma/client';
+import { ApiError } from './api-helpers';
 import { prisma } from './prisma';
+import { ProductCreateInput, ProductUpdateInput } from './validators';
 
 export class ProductService {
   async getProducts(skip = 0, take = 10, categoryId?: string) {
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
     if (categoryId) {
       where.categoryId = categoryId;
     }
@@ -27,7 +30,7 @@ export class ProductService {
     });
   }
 
-  async createProduct(data: any, userId: string) {
+  async createProduct(data: ProductCreateInput, userId: string) {
     return prisma.product.create({
       data: {
         ...data,
@@ -37,7 +40,7 @@ export class ProductService {
     });
   }
 
-  async updateProduct(id: string, data: any) {
+  async updateProduct(id: string, data: ProductUpdateInput) {
     return prisma.product.update({
       where: { id },
       data,
@@ -52,14 +55,20 @@ export class ProductService {
   }
 
   async decreaseStock(productId: string, quantity: number) {
-    return prisma.product.update({
-      where: { id: productId },
+    const updated = await prisma.product.updateMany({
+      where: { id: productId, stock: { gte: quantity } },
       data: {
         stock: {
           decrement: quantity
         }
       }
     });
+
+    if (updated.count === 0) {
+      throw new ApiError('Estoque insuficiente', 409, 'INSUFFICIENT_STOCK');
+    }
+
+    return prisma.product.findUnique({ where: { id: productId } });
   }
 
   async getStock(productId: string) {

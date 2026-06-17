@@ -7,7 +7,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useProducts } from '../../contexts/ProductContext';
 import { apiClient } from '../../services/api';
 import { Category, Order, Product } from '../../types';
-import { formatCurrency, formatDateTime, getInvoiceNumber } from '../../lib/invoice';
+import {
+  formatCurrency,
+  formatDateTime,
+  getDisplayOrderNumber,
+  getInvoiceNumber
+} from '../../lib/invoice';
 
 export default function AdminPage() {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -62,7 +67,7 @@ export default function AdminPage() {
       setOrders((current) =>
         current.map((order) => (order.id === orderId ? updatedOrder : order))
       );
-      setMessage(`Pedido #${orderId.slice(0, 8)} atualizado.`);
+      setMessage(`Pedido atualizado.`);
     } catch (error) {
       setMessage('Erro ao atualizar pedido.');
       console.error(error);
@@ -209,7 +214,7 @@ export default function AdminPage() {
                   <div key={order.id} className="rounded-3xl border border-white/10 bg-white/5 p-5">
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div>
-                        <p className="font-semibold">Pedido #{order.id.slice(0, 8)}</p>
+                        <p className="font-semibold">Pedido #{getDisplayOrderNumber(order)}</p>
                         <p className="mt-1 text-sm text-gray-300">
                           {formatDateTime(order.createdAt)} - {order.items?.length || 0} item(ns)
                         </p>

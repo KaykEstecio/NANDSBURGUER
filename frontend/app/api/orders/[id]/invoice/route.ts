@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { OrderService } from '@/lib/order-service';
 import { authenticateToken } from '@/lib/auth-middleware';
+import { handleApiError, notFoundResponse, successResponse } from '@/lib/api-helpers';
 import {
   getInvoiceAccessKey,
   getInvoiceNumber,
@@ -10,7 +11,7 @@ import {
 const orderService = new OrderService();
 
 type RouteContext = {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 };
 
 export async function GET(request: NextRequest, { params }: RouteContext) {
@@ -23,16 +24,12 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     );
 
     if (!order) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      );
+      return notFoundResponse('Pedido');
     }
 
     const subtotal = getOrderSubtotal(order);
 
-    return NextResponse.json(
-      {
+    return successResponse({
         number: getInvoiceNumber(order),
         accessKey: getInvoiceAccessKey(order),
         issuedAt: order.createdAt,
@@ -55,7 +52,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
           category: item.product?.category?.name || 'Sem categoria',
           quantity: item.quantity,
           unitPrice: item.price,
-          total: item.quantity * item.price
+          total: item.quantity * Number(item.price)
         })) || [],
         totals: {
           subtotal,
@@ -64,13 +61,8 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
           total: order.total
         },
         note: 'Nota fiscal simplificada para controle interno do projeto.'
-      },
-      { status: 200 }
-    );
+      });
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
 }

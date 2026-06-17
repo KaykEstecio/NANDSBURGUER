@@ -5,21 +5,25 @@ import Link from 'next/link';
 import { useOrders } from '../../contexts/OrderContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { getDisplayOrderNumber } from '../../lib/invoice';
+import { formatCurrency } from '../../lib/utils';
 
 export default function OrdersPage() {
-  const { orders, isLoading, fetchOrders } = useOrders();
-  const { isAuthenticated } = useAuth();
+  const { orders, isLoading, error, fetchOrders } = useOrders();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (isAuthLoading) return;
+
     if (!isAuthenticated) {
       router.push('/auth/login');
       return;
     }
     fetchOrders();
-  }, [isAuthenticated, fetchOrders, router]);
+  }, [isAuthLoading, isAuthenticated, fetchOrders, router]);
 
-  if (!isAuthenticated) {
+  if (isAuthLoading || !isAuthenticated) {
     return null;
   }
 
@@ -47,6 +51,17 @@ export default function OrdersPage() {
         <div className="rounded-[2rem] bg-white p-12 text-center shadow-xl shadow-black/5">
           <p className="text-gray-600">Carregando pedidos...</p>
         </div>
+      ) : error ? (
+        <div className="rounded-[2rem] border border-[#D62828]/20 bg-white p-8 text-center shadow-xl shadow-black/5 sm:p-12">
+          <p className="text-xl font-semibold text-[#111]">Nao foi possivel carregar seus pedidos</p>
+          <p className="mt-2 text-sm text-gray-600">{error}</p>
+          <button
+            onClick={() => fetchOrders()}
+            className="mt-6 rounded-full bg-[#D62828] px-8 py-3 text-sm font-semibold text-white transition hover:bg-[#b11f1f]"
+          >
+            Tentar novamente
+          </button>
+        </div>
       ) : orders.length === 0 ? (
         <div className="rounded-[2rem] bg-white p-12 text-center shadow-xl shadow-black/5">
           <p className="text-xl font-semibold text-gray-700 mb-4">Você ainda não tem pedidos</p>
@@ -63,13 +78,15 @@ export default function OrdersPage() {
             <div key={order.id} className="rounded-[2rem] border border-[#f1e4db] bg-white p-6 shadow-sm">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div>
-                  <p className="text-sm uppercase tracking-[0.35em] text-[#D62828]">Pedido #{order.id}</p>
+                  <p className="text-sm uppercase tracking-[0.35em] text-[#D62828]">
+                    Pedido #{getDisplayOrderNumber(order)}
+                  </p>
                   <p className="mt-2 text-sm text-gray-500">
                     {new Date(order.createdAt).toLocaleDateString('pt-BR')} • {order.items?.length || 0} itens
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-3xl font-bold text-[#D62828]">R$ {order.total.toFixed(2)}</p>
+                <div className="text-left md:text-right">
+                  <p className="text-3xl font-bold text-[#D62828]">{formatCurrency(Number(order.total))}</p>
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold mt-2 ${
                       order.status === 'PAID'
@@ -90,7 +107,7 @@ export default function OrdersPage() {
                   {order.items?.map((item) => (
                     <div key={item.id} className="flex justify-between gap-4">
                       <span>{item.product?.name}</span>
-                      <span>{item.quantity}x R$ {item.price.toFixed(2)}</span>
+                      <span>{item.quantity}x {formatCurrency(Number(item.price))}</span>
                     </div>
                   ))}
                 </div>

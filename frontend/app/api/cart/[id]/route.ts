@@ -1,37 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { CartService } from '@/lib/cart-service';
 import { authenticateToken } from '@/lib/auth-middleware';
+import { handleApiError, successResponse } from '@/lib/api-helpers';
+import { cartItemUpdateSchema } from '@/lib/validators';
 
 const cartService = new CartService();
 
 type RouteContext = {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 };
 
 export async function PUT(request: NextRequest, { params }: RouteContext) {
   try {
     const { id } = await params;
     const user = authenticateToken(request);
-    const { productId = id, quantity } = await request.json();
-
-    if (!productId || quantity === undefined) {
-      return NextResponse.json(
-        { error: 'Product ID and quantity are required' },
-        { status: 400 }
-      );
-    }
+    const input = cartItemUpdateSchema.parse(await request.json());
+    const productId = input.productId ?? id;
+    const { quantity } = input;
 
     if (quantity <= 0) {
       await cartService.removeFromCart(user.userId, productId);
-      return NextResponse.json({ success: true }, { status: 200 });
+      return successResponse({ removed: true });
     }
 
     const item = await cartService.updateCartItem(user.userId, productId, quantity);
-    return NextResponse.json(item, { status: 200 });
+    return successResponse(item);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
-    );
+    return handleApiError(error);
   }
 }

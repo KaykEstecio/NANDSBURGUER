@@ -1,5 +1,3 @@
-import { Order } from '../types';
-
 type InvoiceOrderRef = {
   id: string;
   createdAt: string | Date;
@@ -13,6 +11,14 @@ export function getInvoiceNumber(order: InvoiceOrderRef) {
   return `NF-${year}${month}${day}-${order.id.slice(-6).toUpperCase()}`;
 }
 
+export function getDisplayOrderNumber(order: InvoiceOrderRef) {
+  const compactId = order.id.replace(/[^a-z0-9]/gi, '').toUpperCase();
+  const seed = compactId.split('').reduce((sum, char, index) => {
+    return sum + char.charCodeAt(0) * (index + 1);
+  }, 0);
+  return String(seed % 10000).padStart(4, '0');
+}
+
 export function getInvoiceAccessKey(order: InvoiceOrderRef) {
   const compactDate = new Date(order.createdAt)
     .toISOString()
@@ -22,12 +28,12 @@ export function getInvoiceAccessKey(order: InvoiceOrderRef) {
   return `${compactDate}${compactId}`.slice(0, 44).padEnd(44, '0');
 }
 
-export function getOrderSubtotal(order: Pick<Order, 'total'> & { items?: Array<{ quantity: number; price: number }> }) {
+export function getOrderSubtotal(order: { total: number | unknown; items?: Array<{ quantity: number; price: number | unknown }> }) {
   return (
     order.items?.reduce(
-      (sum, item) => sum + item.quantity * item.price,
+      (sum, item) => sum + item.quantity * Number(item.price),
       0
-    ) || order.total
+    ) || Number(order.total)
   );
 }
 

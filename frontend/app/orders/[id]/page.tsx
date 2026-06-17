@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useOrders } from '../../../contexts/OrderContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { apiClient } from '../../../services/api';
@@ -9,18 +9,14 @@ import { Order } from '../../../types';
 import {
   formatCurrency,
   formatDateTime,
+  getDisplayOrderNumber,
   getInvoiceAccessKey,
   getInvoiceNumber,
   getOrderSubtotal
 } from '../../../lib/invoice';
 
-interface OrderDetailPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function OrderDetailPage({ params }: OrderDetailPageProps) {
+export default function OrderDetailPage() {
+  const params = useParams<{ id: string }>();
   const { fetchOrder } = useOrders();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
@@ -78,7 +74,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.35em] text-[#D62828]">Pedido confirmado</p>
-            <h1 className="mt-3 text-4xl font-bold">Pedido #{order.id.slice(0, 8)}</h1>
+            <h1 className="mt-3 text-4xl font-bold">Pedido #{getDisplayOrderNumber(order)}</h1>
             <p className="mt-2 text-gray-600">Criado em {formatDateTime(order.createdAt)}</p>
           </div>
           <div className="text-left md:text-right">
