@@ -19,12 +19,14 @@ interface OrderWithUser extends Order {
   items?: OrderItem[];
 }
 
+type OrderStatusFilter = 'ALL' | Order['status'];
+
 export function OrderManagement() {
   const [orders, setOrders] = useState<OrderWithUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<OrderWithUser | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<OrderStatusFilter>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
@@ -36,15 +38,7 @@ export function OrderManagement() {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('/api/orders?skip=0&take=50', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) throw new Error('Falha ao carregar pedidos');
-      
-      const data = await response.json();
+      const data = await apiClient.getAllOrders(0, 50);
       setOrders(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar pedidos');
@@ -56,21 +50,7 @@ export function OrderManagement() {
   async function updateOrderStatus(orderId: string, newStatus: string) {
     try {
       setUpdatingStatus(orderId);
-      const response = await fetch(`/api/orders/${orderId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Falha ao atualizar status');
-      }
-      
-      const updatedOrder = await response.json();
+      const updatedOrder = await apiClient.updateOrderStatus(orderId, newStatus);
       setOrders(orders.map(o => o.id === orderId ? updatedOrder : o));
       
       if (selectedOrder?.id === orderId) {
@@ -133,7 +113,7 @@ export function OrderManagement() {
               <label className="block text-sm font-semibold text-[#111111] mb-2">Status</label>
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as any)}
+                onChange={(e) => setStatusFilter(e.target.value as OrderStatusFilter)}
                 className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-[#D62828]"
               >
                 <option value="ALL">Todos os pedidos</option>
@@ -196,7 +176,7 @@ export function OrderManagement() {
                         <p className="text-xs text-gray-500">{order.user?.email}</p>
                         <div className="mt-2 flex items-center justify-between">
                           <p className="text-sm text-gray-600">{order.items?.length || 0} item(ns)</p>
-                          <p className="font-bold text-[#D62828]">R$ {order.total.toFixed(2)}</p>
+                          <p className="font-bold text-[#D62828]">{formatCurrency(Number(order.total))}</p>
                         </div>
                       </div>
                     </div>
@@ -229,7 +209,7 @@ export function OrderManagement() {
 
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wide">Total</p>
-                    <p className="text-2xl font-bold text-[#D62828]">R$ {selectedOrder.total.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-[#D62828]">{formatCurrency(Number(selectedOrder.total))}</p>
                   </div>
 
                   <div className="print-invoice rounded-xl bg-[#f9f1e8] p-4">
@@ -250,7 +230,7 @@ export function OrderManagement() {
                       Chave: {getInvoiceAccessKey(selectedOrder)}
                     </p>
                     <p className="mt-2 text-xs text-gray-500">
-                      Total da nota: {formatCurrency(selectedOrder.total)}
+                      Total da nota: {formatCurrency(Number(selectedOrder.total))}
                     </p>
                   </div>
                 </div>
@@ -265,7 +245,7 @@ export function OrderManagement() {
                           <p className="font-semibold text-[#111111]">{item.product?.name}</p>
                           <p className="text-xs text-gray-500">Qtd: {item.quantity}</p>
                         </div>
-                        <p className="font-semibold">R$ {item.price.toFixed(2)}</p>
+                        <p className="font-semibold">{formatCurrency(Number(item.price))}</p>
                       </div>
                     ))}
                   </div>

@@ -12,6 +12,7 @@ interface ApiErrorResponse {
 interface ApiSuccessResponse<T> {
   success: true;
   data: T;
+  message: string;
 }
 
 export class ApiError extends Error {
@@ -50,15 +51,15 @@ function serializeValue(value: unknown): unknown {
   return value;
 }
 
-export function successResponse<T>(data: T, status = 200) {
+export function successResponse<T>(data: T, status = 200, message = 'OK') {
   return NextResponse.json(
-    { success: true, data: serializeValue(data) },
+    { success: true, data: serializeValue(data), message },
     { status }
   );
 }
 
 export function createdResponse<T>(data: T) {
-  return successResponse(data, 201);
+  return successResponse(data, 201, 'Criado com sucesso');
 }
 
 export function errorResponse(

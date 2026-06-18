@@ -10,7 +10,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   register: (email: string, password: string, name: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,32 +20,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      apiClient
-        .getMe()
-        .then(setUser)
-        .catch(() => localStorage.removeItem('token'))
-        .finally(() => setIsLoading(false));
-    } else {
-      setIsLoading(false);
-    }
+    apiClient
+      .getMe()
+      .then(setUser)
+      .catch(() => setUser(null))
+      .finally(() => setIsLoading(false));
   }, []);
 
   const register = async (email: string, password: string, name: string) => {
-    const { user, token } = await apiClient.register(email, password, name);
-    localStorage.setItem('token', token);
+    const { user } = await apiClient.register(email, password, name);
     setUser(user);
   };
 
   const login = async (email: string, password: string) => {
-    const { user, token } = await apiClient.login(email, password);
-    localStorage.setItem('token', token);
+    const { user } = await apiClient.login(email, password);
     setUser(user);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
+  const logout = async () => {
+    await apiClient.logout().catch(() => undefined);
     setUser(null);
   };
 

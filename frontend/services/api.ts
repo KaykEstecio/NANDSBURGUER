@@ -9,17 +9,10 @@ class ApiClient {
   constructor() {
     this.client = axios.create({
       baseURL: apiUrl,
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json'
       }
-    });
-
-    this.client.interceptors.request.use((config) => {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
     });
   }
 
@@ -200,6 +193,11 @@ class ApiClient {
 
   async getOrder(id: string) {
     const response = await this.client.get(`/orders/${id}`);
+    return this.unwrap(response);
+  }
+
+  async logout() {
+    const response = await this.client.post('/auth/logout');
     return this.unwrap(response);
   }
 

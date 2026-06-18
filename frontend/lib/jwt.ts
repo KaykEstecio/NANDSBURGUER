@@ -1,4 +1,5 @@
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
+import { ApiError } from './api-helpers';
 
 export interface TokenPayload {
   userId: string;
@@ -20,7 +21,7 @@ export function verifyToken(token: string): TokenPayload {
     const secret: Secret = process.env.JWT_SECRET || 'secret';
     return jwt.verify(token, secret) as TokenPayload;
   } catch (error) {
-    throw new Error('Invalid token');
+    throw new ApiError('Token invalido', 401, 'INVALID_TOKEN');
   }
 }
 
