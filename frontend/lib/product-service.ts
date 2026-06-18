@@ -3,11 +3,30 @@ import { ApiError } from './api-helpers';
 import { prisma } from './prisma';
 import { ProductCreateInput, ProductUpdateInput } from './validators';
 
+interface ProductFilters {
+  categoryId?: string;
+  search?: string;
+  isActive?: boolean;
+  lowStock?: boolean;
+  includeInactive?: boolean;
+}
+
 export class ProductService {
-  async getProducts(skip = 0, take = 10, categoryId?: string) {
+  async getProducts(skip = 0, take = 10, filters: ProductFilters = {}) {
     const where: Prisma.ProductWhereInput = {};
-    if (categoryId) {
-      where.categoryId = categoryId;
+    if (filters.categoryId) {
+      where.categoryId = filters.categoryId;
+    }
+    if (filters.search) {
+      where.name = { contains: filters.search, mode: 'insensitive' };
+    }
+    if (filters.includeInactive) {
+      if (filters.isActive !== undefined) where.isActive = filters.isActive;
+    } else {
+      where.isActive = true;
+    }
+    if (filters.lowStock) {
+      where.stock = { lte: 10 };
     }
 
     const products = await prisma.product.findMany({
@@ -23,9 +42,9 @@ export class ProductService {
     return { products, total };
   }
 
-  async getProductById(id: string) {
-    return prisma.product.findUnique({
-      where: { id },
+  async getProductById(id: string, includeInactive = false) {
+    return prisma.product.findFirst({
+      where: { id, ...(includeInactive ? {} : { isActive: true }) },
       include: { category: true }
     });
   }
@@ -49,8 +68,10 @@ export class ProductService {
   }
 
   async deleteProduct(id: string) {
-    return prisma.product.delete({
-      where: { id }
+    return prisma.product.update({
+      where: { id },
+      data: { isActive: false },
+      include: { category: true }
     });
   }
 

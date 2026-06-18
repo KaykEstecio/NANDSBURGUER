@@ -59,6 +59,7 @@ export function RegisterForm() {
           <label className="mb-2 block text-sm font-semibold text-[#111111]">Nome</label>
           <input
             type="text"
+            autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full rounded-3xl border border-[#ddd] bg-[#faf3ed] px-4 py-3 text-sm outline-none transition focus:border-[#D62828]"
@@ -70,6 +71,7 @@ export function RegisterForm() {
           <label className="mb-2 block text-sm font-semibold text-[#111111]">Email</label>
           <input
             type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full rounded-3xl border border-[#ddd] bg-[#faf3ed] px-4 py-3 text-sm outline-none transition focus:border-[#D62828]"
@@ -81,6 +83,7 @@ export function RegisterForm() {
           <label className="mb-2 block text-sm font-semibold text-[#111111]">Senha</label>
           <input
             type="password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-3xl border border-[#ddd] bg-[#faf3ed] px-4 py-3 text-sm outline-none transition focus:border-[#D62828]"
@@ -92,6 +95,7 @@ export function RegisterForm() {
           <label className="mb-2 block text-sm font-semibold text-[#111111]">Confirmar senha</label>
           <input
             type="password"
+            autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full rounded-3xl border border-[#ddd] bg-[#faf3ed] px-4 py-3 text-sm outline-none transition focus:border-[#D62828]"

@@ -3,12 +3,13 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { redirect } from 'next/navigation';
 import { OrderManagement } from '@/components/OrderManagement';
+import { LoadingPanel } from '@/components/ui/state-panel';
 
 export default function AdminOrdersPage() {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
+    return <LoadingPanel label="Validando acesso administrativo..." />;
   }
 
   if (!user || user.role !== 'ADMIN') {

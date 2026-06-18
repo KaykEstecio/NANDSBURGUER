@@ -8,6 +8,7 @@ import { Badge } from '../../components/ui/badge';
 import { Card, CardContent } from '../../components/ui/card';
 import { Separator } from '../../components/ui/separator';
 import { cn } from '../../lib/utils';
+import { StatePanel } from '../../components/ui/state-panel';
 
 const CATEGORY_LABELS: Record<string, string> = {
   Hamburguers: 'Burger',
@@ -125,27 +126,20 @@ export default function ProductsPage() {
           ))}
         </div>
       ) : error ? (
-        <Card className="rounded-[1.25rem] border-primary/30">
-          <CardContent className="p-8 text-center sm:p-12">
-            <h2 className="text-2xl font-black text-foreground">Nao foi possivel carregar o cardapio</h2>
-            <p className="mt-2 text-muted-foreground">{error}</p>
-            <Button className="mt-6" onClick={() => fetchProducts(0, 100)}>
-              Tentar novamente
-            </Button>
-          </CardContent>
-        </Card>
+        <StatePanel
+          title="Nao foi possivel carregar o cardapio"
+          description={error}
+          tone="error"
+          actionLabel="Tentar novamente"
+          onAction={() => fetchProducts(0, 100)}
+        />
       ) : filteredProducts.length === 0 ? (
-        <Card className="rounded-[1.25rem]">
-          <CardContent className="p-12 text-center">
-            <h2 className="text-2xl font-black text-foreground">Nada por aqui ainda</h2>
-            <p className="mt-2 text-muted-foreground">
-              Essa categoria esta vazia. Volte para todos os itens e escolha outro pedido.
-            </p>
-            <Button className="mt-6" onClick={() => setSelectedCategory('')}>
-              Ver todos
-            </Button>
-          </CardContent>
-        </Card>
+        <StatePanel
+          title="Nada por aqui ainda"
+          description="Essa categoria esta vazia. Volte para todos os itens e escolha outro pedido."
+          actionLabel="Ver todos"
+          onAction={() => setSelectedCategory('')}
+        />
       ) : selectedCategory ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredProducts.map((product) => (

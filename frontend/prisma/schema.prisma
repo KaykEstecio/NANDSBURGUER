@@ -45,6 +45,8 @@ model Product {
   id          String   @id @default(cuid())
   name        String
   description String?
+  imageUrl    String?
+  isActive    Boolean  @default(true)
   price       Decimal  @db.Decimal(10, 2)
   stock       Int
   categoryId  String

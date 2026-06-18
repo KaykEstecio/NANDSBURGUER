@@ -1,14 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { apiClient } from '../services/api';
-import { Order, OrderItem, Product } from '../types';
+import { Order, OrderItem } from '../types';
 import {
   formatCurrency,
+  formatDateTime,
   getDisplayOrderNumber,
   getInvoiceAccessKey,
   getInvoiceNumber
 } from '../lib/invoice';
+import { Button } from './ui/button';
+import { Input, inputClassName } from './ui/input';
+import { LoadingPanel, StatePanel } from './ui/state-panel';
+import { OrderStatusBadge } from './ui/order-status';
 
 interface OrderWithUser extends Order {
   user?: {
@@ -21,6 +26,14 @@ interface OrderWithUser extends Order {
 
 type OrderStatusFilter = 'ALL' | Order['status'];
 
+const statusOptions: Array<{ value: OrderStatusFilter; label: string }> = [
+  { value: 'ALL', label: 'Todos' },
+  { value: 'PENDING', label: 'Pendentes' },
+  { value: 'PAID', label: 'Pagos' },
+  { value: 'FAILED', label: 'Falhas' },
+  { value: 'CANCELLED', label: 'Cancelados' }
+];
+
 export function OrderManagement() {
   const [orders, setOrders] = useState<OrderWithUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,7 +45,7 @@ export function OrderManagement() {
 
   useEffect(() => {
     loadOrders();
-  }, [statusFilter]);
+  }, []);
 
   async function loadOrders() {
     try {
@@ -40,6 +53,7 @@ export function OrderManagement() {
       setError('');
       const data = await apiClient.getAllOrders(0, 50);
       setOrders(data);
+      setSelectedOrder((current) => current ?? data[0] ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar pedidos');
     } finally {
@@ -47,18 +61,15 @@ export function OrderManagement() {
     }
   }
 
-  async function updateOrderStatus(orderId: string, newStatus: string) {
+  async function updateOrderStatus(orderId: string, newStatus: Order['status']) {
     try {
       setUpdatingStatus(orderId);
+      setError('');
       const updatedOrder = await apiClient.updateOrderStatus(orderId, newStatus);
-      setOrders(orders.map(o => o.id === orderId ? updatedOrder : o));
-      
-      if (selectedOrder?.id === orderId) {
-        setSelectedOrder(updatedOrder);
-      }
-
-      const displayOrder = orders.find((order) => order.id === orderId);
-      alert(`Pedido #${displayOrder ? getDisplayOrderNumber(displayOrder) : '----'} atualizado para ${newStatus}`);
+      setOrders((current) =>
+        current.map((order) => (order.id === orderId ? updatedOrder : order))
+      );
+      setSelectedOrder((current) => (current?.id === orderId ? updatedOrder : current));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao atualizar status');
     } finally {
@@ -66,216 +77,196 @@ export function OrderManagement() {
     }
   }
 
-  const statusColors: Record<string, string> = {
-    PENDING: 'bg-yellow-100 text-yellow-800',
-    PAID: 'bg-green-100 text-green-800',
-    FAILED: 'bg-red-100 text-red-800',
-    CANCELLED: 'bg-gray-100 text-gray-800'
-  };
+  const filteredOrders = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
 
-  const statusBadges: Record<string, string> = {
-    PENDING: '⏳ Pendente',
-    PAID: '✅ Pago',
-    FAILED: '❌ Falha',
-    CANCELLED: '🚫 Cancelado'
-  };
-
-  const filteredOrders = orders
-    .filter(order => statusFilter === 'ALL' || order.status === statusFilter)
-    .filter(order => {
-      const query = searchQuery.toLowerCase();
-      return (
+    return orders.filter((order) => {
+      const matchesStatus = statusFilter === 'ALL' || order.status === statusFilter;
+      const matchesQuery =
+        !query ||
         order.id.toLowerCase().includes(query) ||
         getDisplayOrderNumber(order).includes(query) ||
         order.user?.name.toLowerCase().includes(query) ||
-        order.user?.email.toLowerCase().includes(query)
-      );
+        order.user?.email.toLowerCase().includes(query);
+
+      return matchesStatus && matchesQuery;
     });
+  }, [orders, searchQuery, statusFilter]);
 
   if (isLoading) {
-    return <div className="flex items-center justify-center py-12">⏳ Carregando pedidos...</div>;
+    return <LoadingPanel label="Carregando pedidos da operacao..." />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#111111] mb-2">📦 Gerenciar Pedidos</h1>
-          <p className="text-gray-600">Acompanhe e atualize o status dos pedidos</p>
+    <div className="page-shell">
+      <section className="surface-panel rounded-[1.25rem] p-6 sm:p-8">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-sm font-black text-primary">Operacao</p>
+            <h1 className="mt-2 text-3xl font-black sm:text-4xl">Gerenciar pedidos</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Consulte clientes, revise itens e atualize o andamento de cada pedido.
+            </p>
+          </div>
+          <Button variant="outline" onClick={loadOrders}>
+            Atualizar lista
+          </Button>
         </div>
+      </section>
 
-        {/* Filtros */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Filtro de Status */}
-            <div>
-              <label className="block text-sm font-semibold text-[#111111] mb-2">Status</label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as OrderStatusFilter)}
-                className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-[#D62828]"
+      {error ? (
+        <div className="rounded-xl border border-primary/25 bg-primary/[0.06] px-4 py-3 text-sm font-semibold text-primary">
+          {error}
+        </div>
+      ) : null}
+
+      <section className="surface-panel rounded-[1.25rem] p-4 sm:p-5">
+        <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
+          <label className="space-y-2 text-sm font-bold">
+            <span>Status</span>
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as OrderStatusFilter)}
+              className={inputClassName}
+            >
+              {statusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="space-y-2 text-sm font-bold">
+            <span>Buscar pedido</span>
+            <Input
+              type="search"
+              placeholder="Numero, cliente ou email"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+            />
+          </label>
+        </div>
+      </section>
+
+      {filteredOrders.length === 0 ? (
+        <StatePanel
+          title="Nenhum pedido encontrado"
+          description="Ajuste os filtros ou atualize a lista para tentar novamente."
+        />
+      ) : (
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
+          <div className="space-y-3">
+            {filteredOrders.map((order) => (
+              <button
+                type="button"
+                key={order.id}
+                onClick={() => setSelectedOrder(order)}
+                className={`surface-panel w-full rounded-xl p-4 text-left transition sm:p-5 ${
+                  selectedOrder?.id === order.id
+                    ? 'border-primary/40 ring-2 ring-primary/10'
+                    : 'hover:border-primary/20 hover:shadow-md'
+                }`}
               >
-                <option value="ALL">Todos os pedidos</option>
-                <option value="PENDING">⏳ Pendente</option>
-                <option value="PAID">✅ Pago</option>
-                <option value="FAILED">❌ Falha</option>
-                <option value="CANCELLED">🚫 Cancelado</option>
-              </select>
-            </div>
-
-            {/* Busca */}
-            <div>
-              <label className="block text-sm font-semibold text-[#111111] mb-2">Buscar</label>
-              <input
-                type="text"
-                placeholder="ID do pedido, cliente ou email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-[#D62828]"
-              />
-            </div>
-          </div>
-        </div>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-            <p className="text-red-800 text-sm">❌ {error}</p>
-          </div>
-        )}
-
-        {/* Grid de Pedidos */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Lista de Pedidos */}
-          <div className="lg:col-span-2">
-            {filteredOrders.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
-                <p className="text-gray-500 text-lg">Nenhum pedido encontrado</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    onClick={() => setSelectedOrder(order)}
-                    className={`bg-white rounded-xl shadow-sm p-4 cursor-pointer transition hover:shadow-md border-2 ${
-                      selectedOrder?.id === order.id ? 'border-[#D62828] bg-red-50/30' : 'border-transparent'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <p className="font-semibold text-sm text-[#111111]">
-                            Pedido #{getDisplayOrderNumber(order)}
-                          </p>
-                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${statusColors[order.status]}`}>
-                            {statusBadges[order.status]}
-                          </span>
-                        </div>
-                        <p className="font-semibold text-[#111111]">{order.user?.name || 'Cliente'}</p>
-                        <p className="text-xs text-gray-500">{order.user?.email}</p>
-                        <div className="mt-2 flex items-center justify-between">
-                          <p className="text-sm text-gray-600">{order.items?.length || 0} item(ns)</p>
-                          <p className="font-bold text-[#D62828]">{formatCurrency(Number(order.total))}</p>
-                        </div>
-                      </div>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-black">Pedido #{getDisplayOrderNumber(order)}</span>
+                      <OrderStatusBadge status={order.status} />
                     </div>
+                    <p className="mt-2 truncate text-sm font-semibold">{order.user?.name || 'Cliente'}</p>
+                    <p className="truncate text-xs text-muted-foreground">{order.user?.email}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {formatDateTime(order.createdAt)}
+                    </p>
                   </div>
+                  <div className="flex items-end justify-between gap-5 sm:flex-col sm:text-right">
+                    <span className="text-xs font-bold text-muted-foreground">
+                      {order.items?.length || 0} item(ns)
+                    </span>
+                    <span className="text-xl font-black text-primary">
+                      {formatCurrency(Number(order.total))}
+                    </span>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {selectedOrder ? (
+            <aside className="surface-panel rounded-[1.25rem] p-5 xl:sticky xl:top-24">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-black text-muted-foreground">PEDIDO</p>
+                  <h2 className="mt-1 text-2xl font-black">#{getDisplayOrderNumber(selectedOrder)}</h2>
+                </div>
+                <OrderStatusBadge status={selectedOrder.status} />
+              </div>
+
+              <div className="mt-5 space-y-4 border-y border-border py-5 text-sm">
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground">Cliente</p>
+                  <p className="mt-1 font-bold">{selectedOrder.user?.name || 'Cliente'}</p>
+                  <p className="text-muted-foreground">{selectedOrder.user?.email}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground">Total</p>
+                  <p className="mt-1 text-2xl font-black text-primary">
+                    {formatCurrency(Number(selectedOrder.total))}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground">Data</p>
+                  <p className="mt-1 font-semibold">{formatDateTime(selectedOrder.createdAt)}</p>
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <p className="text-xs font-black text-muted-foreground">ITENS</p>
+                <div className="mt-3 max-h-52 space-y-2 overflow-y-auto pr-1">
+                  {selectedOrder.items?.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg bg-muted/60 p-3 text-sm">
+                      <div className="min-w-0">
+                        <p className="truncate font-bold">{item.product?.name}</p>
+                        <p className="text-xs text-muted-foreground">Quantidade: {item.quantity}</p>
+                      </div>
+                      <p className="shrink-0 font-black">{formatCurrency(Number(item.price))}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="print-invoice mt-5 rounded-xl bg-muted/60 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold text-muted-foreground">Nota simplificada</p>
+                    <p className="mt-1 text-sm font-black">{getInvoiceNumber(selectedOrder)}</p>
+                  </div>
+                  <Button type="button" size="sm" variant="outline" onClick={() => window.print()} className="print-hide">
+                    Imprimir
+                  </Button>
+                </div>
+                <p className="mt-3 break-all font-mono text-[10px] text-muted-foreground">
+                  {getInvoiceAccessKey(selectedOrder)}
+                </p>
+              </div>
+
+              <div className="mt-5 grid grid-cols-2 gap-2">
+                {(['PENDING', 'PAID', 'FAILED', 'CANCELLED'] as Order['status'][]).map((status) => (
+                  <Button
+                    key={status}
+                    variant={selectedOrder.status === status ? 'secondary' : 'outline'}
+                    size="sm"
+                    disabled={updatingStatus === selectedOrder.id || selectedOrder.status === status}
+                    onClick={() => updateOrderStatus(selectedOrder.id, status)}
+                  >
+                    {statusOptions.find((option) => option.value === status)?.label}
+                  </Button>
                 ))}
               </div>
-            )}
-          </div>
-
-          {/* Detalhes do Pedido Selecionado */}
-          {selectedOrder && (
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-6">
-                <h2 className="text-2xl font-bold text-[#111111] mb-4">Detalhes do Pedido</h2>
-                
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Numero do pedido</p>
-                    <p className="text-lg font-bold text-[#111111]">#{getDisplayOrderNumber(selectedOrder)}</p>
-                    <p className="mt-1 font-mono text-[11px] break-all text-gray-400">
-                      ID tecnico: {selectedOrder.id}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Cliente</p>
-                    <p className="font-semibold">{selectedOrder.user?.name}</p>
-                    <p className="text-xs text-gray-600">{selectedOrder.user?.email}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Total</p>
-                    <p className="text-2xl font-bold text-[#D62828]">{formatCurrency(Number(selectedOrder.total))}</p>
-                  </div>
-
-                  <div className="print-invoice rounded-xl bg-[#f9f1e8] p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide">Nota fiscal</p>
-                        <p className="mt-1 font-semibold text-[#111]">{getInvoiceNumber(selectedOrder)}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => window.print()}
-                        className="print-hide rounded-full bg-[#F77F00] px-3 py-1 text-xs font-semibold text-[#000]"
-                      >
-                        Imprimir
-                      </button>
-                    </div>
-                    <p className="mt-3 break-all font-mono text-[11px] text-gray-500">
-                      Chave: {getInvoiceAccessKey(selectedOrder)}
-                    </p>
-                    <p className="mt-2 text-xs text-gray-500">
-                      Total da nota: {formatCurrency(Number(selectedOrder.total))}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Items */}
-                <div className="border-t pt-4 mb-6">
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Itens</p>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {selectedOrder.items?.map((item) => (
-                      <div key={item.id} className="flex justify-between text-sm bg-gray-50 p-2 rounded">
-                        <div>
-                          <p className="font-semibold text-[#111111]">{item.product?.name}</p>
-                          <p className="text-xs text-gray-500">Qtd: {item.quantity}</p>
-                        </div>
-                        <p className="font-semibold">{formatCurrency(Number(item.price))}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Atualizar Status */}
-                <div className="border-t pt-4">
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-3">Atualizar Status</p>
-                  <div className="space-y-2">
-                    {['PENDING', 'PAID', 'FAILED', 'CANCELLED'].map((status) => (
-                      <button
-                        key={status}
-                        onClick={() => updateOrderStatus(selectedOrder.id, status)}
-                        disabled={updatingStatus === selectedOrder.id || selectedOrder.status === status}
-                        className={`w-full py-2 px-3 rounded-lg text-sm font-semibold transition ${
-                          selectedOrder.status === status
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-[#D62828] text-white hover:bg-[#b11f1f]'
-                        }`}
-                      >
-                        {updatingStatus === selectedOrder.id ? '⏳' : statusBadges[status]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+            </aside>
+          ) : null}
         </div>
-      </div>
+      )}
     </div>
   );
 }

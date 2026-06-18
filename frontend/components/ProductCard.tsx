@@ -62,6 +62,10 @@ const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80';
 
 function getProductImage(product: Product) {
+  if (product.imageUrl) {
+    return product.imageUrl;
+  }
+
   if (PRODUCT_IMAGES[product.name]) {
     return PRODUCT_IMAGES[product.name];
   }
@@ -86,6 +90,7 @@ function AddIcon() {
 export function ProductCard({ product }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState('');
+  const [added, setAdded] = useState(false);
   const { addItem } = useCart();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
@@ -101,9 +106,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
     setIsAdding(true);
     setError('');
+    setAdded(false);
 
     try {
       await addItem(product.id, 1);
+      setAdded(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao adicionar ao carrinho');
     } finally {
@@ -114,54 +121,55 @@ export function ProductCard({ product }: ProductCardProps) {
   const available = product.stock > 0;
 
   return (
-    <Card className="group flex h-full overflow-hidden rounded-[1.25rem] bg-card shadow-grill transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:shadow-2xl">
+    <Card className="group flex h-full flex-col overflow-hidden bg-card transition duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_20px_48px_rgba(48,25,12,0.14)]">
       <Link href={`/products/${product.id}`} className="flex flex-1 flex-col">
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        <div className="relative aspect-[4/3] overflow-hidden bg-muted sm:aspect-[5/4]">
           <div
             className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105"
             style={{ backgroundImage: `url(${getProductImage(product)})` }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/[0.62] via-black/10 to-transparent" />
-          <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-            <Badge>{product.category?.name || 'Produto'}</Badge>
+          <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-2">
+            <Badge className="bg-white/90 text-[#15110f] shadow-sm backdrop-blur">
+              {product.category?.name || 'Produto'}
+            </Badge>
             {!available && <Badge variant="destructive">Esgotado</Badge>}
           </div>
+          <span className="absolute bottom-4 right-4 rounded-full bg-[#15110f]/90 px-4 py-2 text-base font-black text-secondary shadow-lg backdrop-blur">
+            {formatCurrency(product.price)}
+          </span>
         </div>
 
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-4">
-            <CardTitle className="text-2xl">{product.name}</CardTitle>
-            <span className="shrink-0 rounded-2xl bg-secondary/[0.18] px-3 py-2 text-lg font-black text-primary">
-              {formatCurrency(product.price)}
-            </span>
-          </div>
+        <CardHeader className="p-5 pb-2">
+          <CardTitle className="text-xl sm:text-2xl">{product.name}</CardTitle>
         </CardHeader>
 
-        <CardContent className="flex flex-1 flex-col gap-4">
-          <p className="line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-muted-foreground">
+        <CardContent className="flex flex-1 flex-col gap-4 p-5 pt-0">
+          <p className="line-clamp-2 min-h-12 text-sm leading-6 text-muted-foreground">
             {product.description || 'Produto preparado na chapa da Nands Burguer.'}
           </p>
-          <div className="flex items-center justify-between rounded-2xl bg-muted/70 px-4 py-3 text-sm">
+          <div className="mt-auto flex items-center justify-between border-t border-border/70 pt-4 text-sm">
             <span className="font-bold text-foreground">
               {available ? 'Saindo da chapa' : 'Volta em breve'}
             </span>
-            <span className="text-muted-foreground">
+            <span className="font-semibold text-muted-foreground">
               {available ? `${product.stock} un.` : 'sem estoque'}
             </span>
           </div>
         </CardContent>
       </Link>
 
-      <CardFooter className="flex-col items-stretch gap-3">
+      <CardFooter className="flex-col items-stretch gap-2 p-5 pt-0">
         <Button
           onClick={handleAddToCart}
           disabled={!available || isAdding}
           className="w-full"
         >
           <AddIcon />
-          {isAdding ? 'Adicionando...' : 'Adicionar'}
+          {isAdding ? 'Adicionando...' : added ? 'Adicionado ao carrinho' : 'Adicionar'}
         </Button>
-        {error && <p className="text-center text-sm font-semibold text-primary">{error}</p>}
+        {error ? <p className="text-center text-sm font-semibold text-primary">{error}</p> : null}
+        {added ? <p className="text-center text-xs font-bold text-emerald-700">Item pronto no seu carrinho.</p> : null}
       </CardFooter>
     </Card>
   );

@@ -16,12 +16,29 @@ export interface Product {
   id: string;
   name: string;
   description?: string;
+  imageUrl?: string | null;
+  isActive: boolean;
   price: number;
   stock: number;
   categoryId: string;
   category?: Category;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ProductInput {
+  name: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  isActive: boolean;
+  price: number;
+  stock: number;
+  categoryId: string;
+}
+
+export interface ProductListResponse {
+  products: Product[];
+  total: number;
 }
 
 export interface CartItem {

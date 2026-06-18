@@ -67,9 +67,17 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       <section className="rounded-[2rem] bg-white p-10 shadow-xl shadow-black/5">
         <div className="grid gap-8 lg:grid-cols-[1.2fr_0.9fr] lg:items-center">
           <div className="rounded-[2rem] bg-[#111111] p-8 text-white shadow-2xl shadow-black/20">
-            <div className="flex h-96 items-center justify-center rounded-[1.5rem] bg-[#000000]">
-              <span className="text-4xl">🍔</span>
-            </div>
+            <div
+              className="h-96 rounded-[1.5rem] bg-[#000000] bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${
+                  product.imageUrl ||
+                  'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=85'
+                })`
+              }}
+              role="img"
+              aria-label={`Imagem de ${product.name}`}
+            />
             <div className="mt-8 space-y-4">
               <p className="text-sm uppercase tracking-[0.35em] text-[#F77F00]">Produto</p>
               <h1 className="text-4xl font-bold">{product.name}</h1>

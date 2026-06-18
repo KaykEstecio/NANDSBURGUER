@@ -52,6 +52,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body:has([data-scroll-lock='true']) {
+  overflow: hidden;
+}
+
 h1,
 h2,
 h3,
@@ -80,6 +84,24 @@ img {
 }
 
 @layer base {
+  :focus-visible {
+    outline: 2px solid rgba(214, 40, 40, 0.8);
+    outline-offset: 3px;
+  }
+
+  .surface-panel {
+    border: 1px solid hsl(var(--border) / 0.8);
+    background: hsl(var(--card));
+    box-shadow: 0 10px 30px rgba(48, 25, 12, 0.06);
+  }
+
+  .page-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding-bottom: 2rem;
+  }
+
   .burger-noise {
     background-image:
       linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),

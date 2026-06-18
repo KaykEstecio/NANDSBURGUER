@@ -7,20 +7,36 @@ import {
   handleApiError,
   successResponse
 } from '@/lib/api-helpers';
-import { paginationQuerySchema, productCreateSchema } from '@/lib/validators';
+import { productCreateSchema, productQuerySchema } from '@/lib/validators';
 
 const productService = new ProductService();
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = paginationQuerySchema.parse({
+    const query = productQuerySchema.parse({
       skip: searchParams.get('skip') ?? undefined,
       take: searchParams.get('take') ?? undefined,
-      categoryId: searchParams.get('categoryId') ?? undefined
+      categoryId: searchParams.get('categoryId') ?? undefined,
+      search: searchParams.get('search') ?? undefined,
+      isActive: searchParams.get('isActive') ?? undefined,
+      lowStock: searchParams.get('lowStock') ?? undefined,
+      scope: searchParams.get('scope') ?? undefined
     });
 
-    const result = await productService.getProducts(query.skip, query.take, query.categoryId);
+    const includeInactive = query.scope === 'admin';
+    if (includeInactive) {
+      const user = authenticateToken(request);
+      if (user.role !== 'ADMIN') return forbiddenResponse();
+    }
+
+    const result = await productService.getProducts(query.skip, query.take, {
+      categoryId: query.categoryId,
+      search: query.search,
+      isActive: query.isActive,
+      lowStock: query.lowStock,
+      includeInactive
+    });
     return successResponse(result);
   } catch (error) {
     return handleApiError(error);

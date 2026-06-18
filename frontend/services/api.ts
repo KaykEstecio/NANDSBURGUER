@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { Category, Product } from '../types';
+import { Category, Product, ProductInput, ProductListResponse } from '../types';
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -83,19 +83,45 @@ class ApiClient {
     return this.unwrap(response);
   }
 
+  async getAdminProducts(params: {
+    skip?: number;
+    take?: number;
+    search?: string;
+    categoryId?: string;
+    isActive?: boolean;
+    lowStock?: boolean;
+  }) {
+    try {
+      const response = await this.client.get('/products', {
+        params: { ...params, scope: 'admin' }
+      });
+      return this.unwrap<ProductListResponse>(response);
+    } catch (error) {
+      throw this.getError(error);
+    }
+  }
+
   async getProduct(id: string) {
     const response = await this.client.get(`/products/${id}`);
     return this.unwrap(response);
   }
 
-  async createProduct(data: Omit<Product, 'id' | 'category' | 'createdAt' | 'updatedAt'>) {
-    const response = await this.client.post('/products', data);
-    return this.unwrap(response);
+  async createProduct(data: ProductInput) {
+    try {
+      const response = await this.client.post('/products', data);
+      return this.unwrap<Product>(response);
+    } catch (error) {
+      throw this.getError(error);
+    }
   }
 
-  async updateProduct(id: string, data: Partial<Omit<Product, 'id' | 'category' | 'createdAt' | 'updatedAt'>>) {
-    const response = await this.client.put(`/products/${id}`, data);
-    return this.unwrap(response);
+  async updateProduct(id: string, data: Partial<ProductInput>) {
+    try {
+      const response = await this.client.put(`/products/${id}`, data);
+      return this.unwrap<Product>(response);
+    } catch (error) {
+      throw this.getError(error);
+    }
   }
 
   async deleteProduct(id: string) {

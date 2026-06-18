@@ -73,6 +73,7 @@ export function LoginForm() {
           <label className="mb-2 block text-sm font-semibold text-[#111111]">Email</label>
           <input
             type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
@@ -91,6 +92,7 @@ export function LoginForm() {
           <label className="mb-2 block text-sm font-semibold text-[#111111]">Senha</label>
           <input
             type="password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="******"

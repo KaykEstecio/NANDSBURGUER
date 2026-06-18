@@ -10,6 +10,7 @@ const {
   cartItemSchema,
   loginSchema,
   productCreateSchema,
+  productUpdateSchema,
   registerSchema
 } = require('../lib/validators');
 
@@ -38,6 +39,21 @@ test('product schema coerces numeric fields and rejects invalid stock', () => {
 
   assert.equal(product.price, 39.9);
   assert.equal(product.stock, 8);
+  assert.equal(product.isActive, true);
+
+  const inactiveProduct = productCreateSchema.parse({
+    name: 'Combo Inativo',
+    price: 25,
+    stock: 2,
+    categoryId: 'cat_123',
+    imageUrl: 'https://example.com/produto.jpg',
+    isActive: false
+  });
+
+  assert.equal(inactiveProduct.isActive, false);
+  assert.deepEqual(productUpdateSchema.parse({ name: 'Nome atualizado' }), {
+    name: 'Nome atualizado'
+  });
 
   assert.throws(() =>
     productCreateSchema.parse({

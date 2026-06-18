@@ -27,13 +27,24 @@ function CloseIcon() {
 }
 
 export function CartSidebar({ open, onClose }: CartSidebarProps) {
-  const { items, total, fetchCart, updateItem, removeItem, isLoading } = useCart();
+  const { items, total, fetchCart, updateItem, removeItem, isLoading, error, successMessage } = useCart();
 
   useEffect(() => {
     if (open) {
       fetchCart();
     }
   }, [open, fetchCart]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [open, onClose]);
 
   const handleQuantityChange = async (productId: string, newQuantity: number) => {
     if (newQuantity === 0) {
@@ -48,14 +59,19 @@ export function CartSidebar({ open, onClose }: CartSidebarProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-hidden" data-scroll-lock="true">
       <button
         type="button"
         aria-label="Fechar carrinho"
         className="absolute inset-0 bg-black/[0.62] backdrop-blur-sm"
         onClick={onClose}
       />
-      <aside className="absolute right-0 top-0 flex h-full w-full max-w-md animate-enter flex-col bg-[#15110f] text-white shadow-2xl">
+      <aside
+        className="absolute right-0 top-0 flex h-full w-full max-w-md animate-enter flex-col bg-[#15110f] text-white shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Carrinho"
+      >
         <div className="burger-noise flex items-center justify-between gap-4 border-b border-white/10 p-5 sm:p-6">
           <div>
             <Badge variant="secondary" className="border-0">
@@ -75,9 +91,23 @@ export function CartSidebar({ open, onClose }: CartSidebarProps) {
         </div>
 
         <div className="menu-scrollbar flex-1 overflow-y-auto px-5 py-6 sm:px-6">
+          {error || successMessage ? (
+            <div
+              className={`mb-4 rounded-xl border px-4 py-3 text-sm font-semibold ${
+                error
+                  ? 'border-primary/30 bg-primary/10 text-white'
+                  : 'border-secondary/30 bg-secondary/10 text-white'
+              }`}
+            >
+              {error || successMessage}
+            </div>
+          ) : null}
           {isLoading ? (
-            <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.06] p-6 text-center text-white/70">
-              Atualizando carrinho...
+            <div className="grid min-h-44 place-items-center rounded-[1.25rem] border border-white/10 bg-white/[0.06] p-6">
+              <div className="flex flex-col items-center gap-3 text-white/70">
+                <span className="size-8 animate-spin rounded-full border-4 border-white/15 border-t-secondary" />
+                <span className="text-sm font-bold">Atualizando carrinho...</span>
+              </div>
             </div>
           ) : items.length === 0 ? (
             <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.06] p-8 text-center">
@@ -161,11 +191,11 @@ export function CartSidebar({ open, onClose }: CartSidebarProps) {
           </div>
           <div className="mt-5 grid gap-3">
             <Link
-              href="/checkout"
+              href={items.length ? '/checkout' : '/products'}
               onClick={onClose}
               className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-6 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:bg-primary/90"
             >
-              Finalizar pedido
+              {items.length ? 'Finalizar pedido' : 'Escolher produtos'}
             </Link>
             <Link
               href="/products"

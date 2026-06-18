@@ -8,6 +8,13 @@ export const paginationQuerySchema = z.object({
   categoryId: z.string().min(1).optional()
 });
 
+export const productQuerySchema = paginationQuerySchema.extend({
+  search: z.string().trim().max(100).optional(),
+  isActive: z.enum(['true', 'false']).transform((value) => value === 'true').optional(),
+  lowStock: z.enum(['true', 'false']).transform((value) => value === 'true').optional(),
+  scope: z.enum(['public', 'admin']).default('public')
+});
+
 export const registerSchema = z.object({
   name: z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().trim().email('Email invalido').toLowerCase(),
@@ -19,15 +26,21 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Senha obrigatoria')
 });
 
-export const productCreateSchema = z.object({
+const productFieldsSchema = z.object({
   name: z.string().trim().min(2, 'Nome obrigatorio'),
   description: z.string().trim().optional().nullable(),
+  imageUrl: z.string().trim().url('URL da imagem invalida').optional().nullable(),
+  isActive: z.boolean(),
   price: z.coerce.number().positive('Preco deve ser maior que zero'),
   stock: z.coerce.number().int().min(0, 'Estoque nao pode ser negativo'),
   categoryId: idSchema
 });
 
-export const productUpdateSchema = productCreateSchema.partial().refine(
+export const productCreateSchema = productFieldsSchema.extend({
+  isActive: z.boolean().default(true)
+});
+
+export const productUpdateSchema = productFieldsSchema.partial().refine(
   (data) => Object.keys(data).length > 0,
   'Informe pelo menos um campo para atualizar'
 );

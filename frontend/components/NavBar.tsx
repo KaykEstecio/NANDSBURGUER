@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { CartSidebar } from './CartSidebar';
@@ -65,51 +66,60 @@ export function NavBar() {
   const { items } = useCart();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const isActive = (href: string) =>
+    href === '/' ? pathname === '/' : href.startsWith('/#') ? pathname === '/' : pathname.startsWith(href);
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-[#2a211d] bg-[#15110f] text-white shadow-lg shadow-black/20">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#15110f]/95 text-white shadow-lg shadow-black/15 backdrop-blur-xl">
+        <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
             className="group flex min-w-0 items-center gap-3"
             onClick={() => setMenuOpen(false)}
           >
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-xl font-black shadow-cheddar transition group-hover:scale-105">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-xl font-black shadow-cheddar transition group-hover:-rotate-3 group-hover:scale-105">
               N
             </span>
             <span className="min-w-0">
               <span className="block truncate text-base font-black uppercase leading-none tracking-normal sm:text-lg">
                 NANDS BURGUER
               </span>
-              <span className="mt-1 block text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+              <span className="mt-1 hidden text-[11px] font-bold uppercase tracking-[0.16em] text-secondary sm:block">
                 chapa artesanal
               </span>
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-1 rounded-full border border-white/12 bg-white/[0.08] p-1 md:flex">
+          <nav className="hidden items-center gap-1 lg:flex" aria-label="Navegacao principal">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-full px-4 py-2 text-sm font-bold text-white transition hover:bg-secondary hover:text-secondary-foreground"
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                className={cn(
+                  'rounded-full px-4 py-2 text-sm font-bold transition',
+                  isActive(item.href)
+                    ? 'bg-white/10 text-secondary'
+                    : 'text-white/75 hover:bg-white/[0.07] hover:text-white'
+                )}
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-2 lg:flex">
             {isAuthenticated ? (
               <>
-                <Link
-                  href="/profile"
-                  className="max-w-[130px] truncate rounded-full px-3 py-2 text-sm font-bold text-white transition hover:bg-white/10"
-                >
-                  {user?.name}
+                <Link href="/profile" className="flex max-w-44 items-center gap-2 rounded-full px-2 py-1.5 transition hover:bg-white/10">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-black text-secondary-foreground">
+                    {user?.name?.slice(0, 1).toUpperCase()}
+                  </span>
+                  <span className="truncate text-sm font-bold text-white">{user?.name}</span>
                 </Link>
                 {user?.role === 'ADMIN' && (
                   <Link
@@ -156,7 +166,7 @@ export function NavBar() {
             </Button>
           </div>
 
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
             <Button
               type="button"
               variant="secondary"
@@ -187,19 +197,32 @@ export function NavBar() {
         </div>
 
         {menuOpen && (
-          <div className="border-t border-white/10 bg-[#15110f] px-4 py-4 md:hidden">
+          <div className="border-t border-white/10 bg-[#15110f] px-4 py-4 lg:hidden">
             <div className="mx-auto flex max-w-7xl flex-col gap-2">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="rounded-2xl px-4 py-3 text-sm font-bold text-white/[0.82] transition hover:bg-white/10 hover:text-white"
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                className={cn(
+                  'rounded-xl px-4 py-3 text-sm font-bold transition',
+                  isActive(item.href) ? 'bg-white/10 text-secondary' : 'text-white/80 hover:bg-white/[0.07]'
+                )}
                 >
                   {item.label}
                 </Link>
               ))}
-              <div className="mt-2 grid grid-cols-2 gap-2">
+              {isAuthenticated && user?.role === 'ADMIN' ? (
+                <Link
+                  href="/admin"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-xl px-4 py-3 text-sm font-bold text-secondary transition hover:bg-white/[0.07]"
+                >
+                  Painel administrativo
+                </Link>
+              ) : null}
+              <div className="mt-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-4">
                 {isAuthenticated ? (
                   <>
                     <Link

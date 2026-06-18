@@ -15,6 +15,7 @@ import {
 } from '../../components/ui/card';
 import { Separator } from '../../components/ui/separator';
 import { formatCurrency } from '../../lib/utils';
+import { LoadingPanel, StatePanel } from '../../components/ui/state-panel';
 
 export default function CartPage() {
   const {
@@ -53,15 +54,11 @@ export default function CartPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="py-16 text-center text-sm font-semibold text-muted-foreground">
-        Carregando carrinho...
-      </div>
-    );
+    return <LoadingPanel label="Atualizando seu carrinho..." />;
   }
 
   return (
-    <div className="flex flex-col gap-8 pb-28 lg:pb-8">
+    <div className="page-shell pb-28 lg:pb-8">
       <section className="overflow-hidden rounded-[1.5rem] bg-[#15110f] text-white shadow-grill">
         <div className="burger-noise p-6 sm:p-8">
           <Badge variant="secondary" className="border-0">
@@ -91,7 +88,8 @@ export default function CartPage() {
 
       {(error || successMessage) && (
         <div
-          className={`rounded-[1.25rem] border p-4 text-sm font-semibold ${
+          role="status"
+          className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
             error
               ? 'border-primary/30 bg-primary/[0.08] text-primary'
               : 'border-[#F77F00]/30 bg-[#F77F00]/15 text-[#111]'
@@ -102,27 +100,17 @@ export default function CartPage() {
       )}
 
       {items.length === 0 ? (
-        <Card className="rounded-[1.25rem]">
-          <CardContent className="p-10 text-center">
-            <h2 className="text-2xl font-black text-foreground">Carrinho vazio</h2>
-            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-              Escolha um burger ou combo no cardapio para iniciar o pedido.
-            </p>
-            <Link
-              href="/products"
-              className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-black text-white shadow-lg shadow-primary/20 transition hover:bg-primary/90"
-            >
-              Continuar comprando
-            </Link>
-          </CardContent>
-        </Card>
+        <StatePanel
+          title="Seu carrinho esta vazio"
+          description="Escolha um burger ou combo no cardapio para iniciar o pedido."
+        />
       ) : (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.72fr)] lg:items-start">
           <div className="flex flex-col gap-4">
             {items.map((item) => (
-              <Card key={item.id} className="rounded-[1.25rem] shadow-sm">
+              <Card key={item.id} className="transition hover:border-primary/20">
                 <CardContent className="p-4 sm:p-5">
-                  <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
+                  <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                     <div className="flex items-center gap-4">
                       <div className="flex size-20 shrink-0 items-center justify-center rounded-[1rem] bg-secondary/[0.18] text-xl font-black text-primary">
                         N
@@ -139,7 +127,7 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between gap-4 sm:justify-end">
+                    <div className="flex flex-wrap items-center justify-between gap-4 sm:justify-end">
                       <div className="flex items-center rounded-full border border-border bg-background">
                         <button
                           onClick={() => handleQuantityChange(item.productId, item.quantity - 1)}
