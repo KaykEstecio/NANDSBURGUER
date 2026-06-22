@@ -35,14 +35,9 @@ class ApiClient {
     return error instanceof Error ? error : new Error('Erro inesperado');
   }
 
-  // Auth
   async register(email: string, password: string, name: string) {
     try {
-      const response = await this.client.post('/auth/register', {
-        email,
-        password,
-        name,
-      });
+      const response = await this.client.post('/auth/register', { email, password, name });
       return this.unwrap(response);
     } catch (error) {
       throw this.getError(error);
@@ -51,10 +46,7 @@ class ApiClient {
 
   async login(email: string, password: string) {
     try {
-      const response = await this.client.post('/auth/login', {
-        email,
-        password,
-      });
+      const response = await this.client.post('/auth/login', { email, password });
       return this.unwrap(response);
     } catch (error) {
       throw this.getError(error);
@@ -70,12 +62,13 @@ class ApiClient {
     }
   }
 
-  // Products
   async getProducts(skip = 0, take = 10) {
-    const response = await this.client.get('/products', {
-      params: { skip, take },
-    });
-    return this.unwrap(response);
+    try {
+      const response = await this.client.get('/products', { params: { skip, take } });
+      return this.unwrap(response);
+    } catch (error) {
+      throw this.getError(error);
+    }
   }
 
   async getAdminProducts(params: {
@@ -97,8 +90,12 @@ class ApiClient {
   }
 
   async getProduct(id: string) {
-    const response = await this.client.get(`/products/${id}`);
-    return this.unwrap(response);
+    try {
+      const response = await this.client.get(`/products/${id}`);
+      return this.unwrap(response);
+    } catch (error) {
+      throw this.getError(error);
+    }
   }
 
   async createProduct(data: ProductInput) {
@@ -129,10 +126,13 @@ class ApiClient {
     return this.unwrap<Product>(response).stock;
   }
 
-  // Categories
   async getCategories() {
-    const response = await this.client.get('/categories');
-    return this.unwrap(response);
+    try {
+      const response = await this.client.get('/categories');
+      return this.unwrap(response);
+    } catch (error) {
+      throw this.getError(error);
+    }
   }
 
   async getCategory(id: string) {
@@ -155,7 +155,6 @@ class ApiClient {
     return this.unwrap(response);
   }
 
-  // Cart
   async getCart() {
     const response = await this.client.get('/cart');
     return this.unwrap(response);
@@ -163,10 +162,7 @@ class ApiClient {
 
   async addToCart(productId: string, quantity: number) {
     try {
-      const response = await this.client.post('/cart', {
-        productId,
-        quantity,
-      });
+      const response = await this.client.post('/cart', { productId, quantity });
       return this.unwrap(response);
     } catch (error) {
       throw this.getError(error);
@@ -175,10 +171,7 @@ class ApiClient {
 
   async updateCartItem(productId: string, quantity: number) {
     try {
-      const response = await this.client.put(`/cart/${productId}`, {
-        productId,
-        quantity,
-      });
+      const response = await this.client.put(`/cart/${productId}`, { productId, quantity });
       return this.unwrap(response);
     } catch (error) {
       throw this.getError(error);
@@ -186,9 +179,7 @@ class ApiClient {
   }
 
   async removeFromCart(productId: string) {
-    const response = await this.client.delete('/cart', {
-      params: { productId },
-    });
+    const response = await this.client.delete('/cart', { params: { productId } });
     return this.unwrap(response);
   }
 
@@ -197,7 +188,6 @@ class ApiClient {
     return this.unwrap(response);
   }
 
-  // Orders
   async createOrder() {
     try {
       const response = await this.client.post('/orders');
@@ -228,16 +218,12 @@ class ApiClient {
   }
 
   async getAllOrders(skip = 0, take = 10) {
-    const response = await this.client.get('/orders', {
-      params: { skip, take },
-    });
+    const response = await this.client.get('/orders', { params: { skip, take } });
     return this.unwrap(response);
   }
 
   async updateOrderStatus(id: string, status: string) {
-    const response = await this.client.put(`/orders/${id}/status`, {
-      status,
-    });
+    const response = await this.client.put(`/orders/${id}/status`, { status });
     return this.unwrap(response);
   }
 }

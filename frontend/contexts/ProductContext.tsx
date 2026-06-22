@@ -1,8 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Product, Category } from '../types';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import { apiClient } from '../services/api';
+import { Category, Product } from '../types';
 
 interface ProductContextType {
   products: Product[];
@@ -16,6 +16,10 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
+function getMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
 export function ProductProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -25,11 +29,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   const fetchProducts = useCallback(async (skip = 0, take = 10) => {
     setIsLoading(true);
     setError('');
+
     try {
       const data = await apiClient.getProducts(skip, take);
       setProducts(Array.isArray(data) ? data : data.products || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar produtos.');
+    } catch (requestError) {
+      setError(getMessage(requestError, 'Erro ao carregar produtos.'));
     } finally {
       setIsLoading(false);
     }
@@ -39,18 +44,16 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     try {
       const data = await apiClient.getCategories();
       setCategories(data);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Erro ao carregar categorias.');
-      console.error('Failed to fetch categories:', error);
+    } catch (requestError) {
+      setError(getMessage(requestError, 'Erro ao carregar categorias.'));
     }
   }, []);
 
   const fetchProduct = useCallback(async (id: string) => {
     try {
-      const data = await apiClient.getProduct(id);
-      return data;
-    } catch (error) {
-      console.error('Failed to fetch product:', error);
+      return await apiClient.getProduct(id);
+    } catch (requestError) {
+      setError(getMessage(requestError, 'Erro ao carregar produto.'));
       return null;
     }
   }, []);
@@ -74,8 +77,6 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
 
 export function useProducts() {
   const context = useContext(ProductContext);
-  if (!context) {
-    throw new Error('useProducts must be used within ProductProvider');
-  }
+  if (!context) throw new Error('useProducts must be used within ProductProvider');
   return context;
 }
