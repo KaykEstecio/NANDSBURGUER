@@ -20,33 +20,31 @@ export function getDisplayOrderNumber(order: InvoiceOrderRef) {
 }
 
 export function getInvoiceAccessKey(order: InvoiceOrderRef) {
-  const compactDate = new Date(order.createdAt)
-    .toISOString()
-    .slice(0, 10)
-    .replace(/-/g, '');
+  const compactDate = new Date(order.createdAt).toISOString().slice(0, 10).replace(/-/g, '');
   const compactId = order.id.replace(/[^a-z0-9]/gi, '').toUpperCase();
   return `${compactDate}${compactId}`.slice(0, 44).padEnd(44, '0');
 }
 
-export function getOrderSubtotal(order: { total: number | unknown; items?: Array<{ quantity: number; price: number | unknown }> }) {
+export function getOrderSubtotal(order: {
+  total: number | unknown;
+  items?: Array<{ quantity: number; price: number | unknown }>;
+}) {
   return (
-    order.items?.reduce(
-      (sum, item) => sum + item.quantity * Number(item.price),
-      0
-    ) || Number(order.total)
+    order.items?.reduce((sum, item) => sum + item.quantity * Number(item.price), 0) ||
+    Number(order.total)
   );
 }
 
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
-    currency: 'BRL'
+    currency: 'BRL',
   }).format(value);
 }
 
 export function formatDateTime(value: string) {
   return new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
-    timeStyle: 'short'
+    timeStyle: 'short',
   }).format(new Date(value));
 }

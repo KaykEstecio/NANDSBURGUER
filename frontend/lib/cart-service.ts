@@ -7,7 +7,7 @@ export class CartService {
     return prisma.cartItem.findMany({
       where: { userId },
       include: { product: true },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -17,7 +17,7 @@ export class CartService {
     }
 
     const product = await prisma.product.findUnique({
-      where: { id: productId }
+      where: { id: productId },
     });
 
     if (!product) {
@@ -26,8 +26,8 @@ export class CartService {
 
     const existingItem = await prisma.cartItem.findUnique({
       where: {
-        userId_productId: { userId, productId }
-      }
+        userId_productId: { userId, productId },
+      },
     });
 
     const nextQuantity = (existingItem?.quantity || 0) + quantity;
@@ -39,13 +39,13 @@ export class CartService {
       return prisma.cartItem.update({
         where: { id: existingItem.id },
         data: { quantity: { increment: quantity } },
-        include: { product: true }
+        include: { product: true },
       });
     }
 
     return prisma.cartItem.create({
       data: { userId, productId, quantity },
-      include: { product: true }
+      include: { product: true },
     });
   }
 
@@ -53,8 +53,8 @@ export class CartService {
     return prisma.cartItem.deleteMany({
       where: {
         userId,
-        productId
-      }
+        productId,
+      },
     });
   }
 
@@ -64,7 +64,7 @@ export class CartService {
     }
 
     const product = await prisma.product.findUnique({
-      where: { id: productId }
+      where: { id: productId },
     });
 
     if (!product) {
@@ -77,23 +77,23 @@ export class CartService {
 
     return prisma.cartItem.update({
       where: {
-        userId_productId: { userId, productId }
+        userId_productId: { userId, productId },
       },
       data: { quantity },
-      include: { product: true }
+      include: { product: true },
     });
   }
 
   async clearCart(userId: string) {
     return prisma.cartItem.deleteMany({
-      where: { userId }
+      where: { userId },
     });
   }
 
   async getCartTotal(userId: string) {
     const items = await prisma.cartItem.findMany({
       where: { userId },
-      include: { product: true }
+      include: { product: true },
     });
 
     return calculateCartTotal(items);

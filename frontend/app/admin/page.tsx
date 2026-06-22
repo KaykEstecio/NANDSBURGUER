@@ -11,7 +11,7 @@ import {
   formatCurrency,
   formatDateTime,
   getDisplayOrderNumber,
-  getInvoiceNumber
+  getInvoiceNumber,
 } from '../../lib/invoice';
 import { Button } from '../../components/ui/button';
 import { LoadingPanel, StatePanel } from '../../components/ui/state-panel';
@@ -61,9 +61,7 @@ export default function AdminPage() {
     setMessage('');
     try {
       const updatedOrder = await apiClient.updateOrderStatus(orderId, status);
-      setOrders((current) =>
-        current.map((order) => (order.id === orderId ? updatedOrder : order))
-      );
+      setOrders((current) => current.map((order) => (order.id === orderId ? updatedOrder : order)));
       setMessage(`Pedido atualizado.`);
     } catch (error) {
       setMessage('Erro ao atualizar pedido.');
@@ -76,10 +74,7 @@ export default function AdminPage() {
     [orders]
   );
 
-  const paidOrders = useMemo(
-    () => orders.filter((order) => order.status === 'PAID'),
-    [orders]
-  );
+  const paidOrders = useMemo(() => orders.filter((order) => order.status === 'PAID'), [orders]);
 
   const validOrders = useMemo(
     () => orders.filter((order) => order.status !== 'CANCELLED' && order.status !== 'FAILED'),
@@ -119,14 +114,15 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="page-shell">
+    <div className="admin-shell page-shell">
       <section className="surface-panel rounded-[1.25rem] p-6 sm:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-black text-primary">Gestao do restaurante</p>
             <h1 className="mt-2 text-3xl font-black sm:text-4xl">Painel administrativo</h1>
             <p className="mt-3 max-w-2xl text-gray-600">
-              Priorize pedidos pendentes, acompanhe faturamento, emita notas dos pedidos e controle o estoque.
+              Priorize pedidos pendentes, acompanhe faturamento, emita notas dos pedidos e controle
+              o estoque.
             </p>
           </div>
           <Link
@@ -139,10 +135,26 @@ export default function AdminPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Pedidos pendentes" value={String(pendingOrders.length)} detail="precisam de preparo" />
-        <MetricCard label="Receita valida" value={formatCurrency(revenue)} detail="sem cancelados/falhas" />
-        <MetricCard label="Ticket medio" value={formatCurrency(averageTicket)} detail={`${paidOrders.length} pedidos pagos`} />
-        <MetricCard label="Estoque baixo" value={String(lowStockProducts.length)} detail="itens com 10 ou menos" />
+        <MetricCard
+          label="Pedidos pendentes"
+          value={String(pendingOrders.length)}
+          detail="precisam de preparo"
+        />
+        <MetricCard
+          label="Receita valida"
+          value={formatCurrency(revenue)}
+          detail="sem cancelados/falhas"
+        />
+        <MetricCard
+          label="Ticket medio"
+          value={formatCurrency(averageTicket)}
+          detail={`${paidOrders.length} pedidos pagos`}
+        />
+        <MetricCard
+          label="Estoque baixo"
+          value={String(lowStockProducts.length)}
+          detail="itens com 10 ou menos"
+        />
       </section>
 
       {message && (
@@ -185,7 +197,10 @@ export default function AdminPage() {
             ) : (
               <div className="mt-6 space-y-4">
                 {pendingOrders.slice(0, 6).map((order) => (
-                  <div key={order.id} className="rounded-xl border border-white/10 bg-white/[0.05] p-4 sm:p-5">
+                  <div
+                    key={order.id}
+                    className="rounded-xl border border-white/10 bg-white/[0.05] p-4 sm:p-5"
+                  >
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
@@ -203,7 +218,9 @@ export default function AdminPage() {
                         </p>
                       </div>
                       <div className="text-left md:text-right">
-                        <p className="text-xl font-bold text-[#F77F00]">{formatCurrency(order.total)}</p>
+                        <p className="text-xl font-bold text-[#F77F00]">
+                          {formatCurrency(order.total)}
+                        </p>
                         <div className="mt-3 flex flex-wrap gap-2 md:justify-end">
                           <Button
                             onClick={() => updateOrderStatus(order.id, 'PAID')}
@@ -234,9 +251,14 @@ export default function AdminPage() {
             <h2 className="mt-2 text-2xl font-black">Itens que mais saem</h2>
             <div className="mt-6 space-y-3">
               {topProducts.map((product, index) => (
-                <div key={product.name} className="flex items-center justify-between rounded-xl border border-border p-4">
+                <div
+                  key={product.name}
+                  className="flex items-center justify-between rounded-xl border border-border p-4"
+                >
                   <div>
-                    <p className="font-semibold text-[#111]">{index + 1}. {product.name}</p>
+                    <p className="font-semibold text-[#111]">
+                      {index + 1}. {product.name}
+                    </p>
                     <p className="text-sm text-gray-500">Vendas registradas</p>
                   </div>
                   <span className="rounded-full bg-[#D62828]/10 px-3 py-1 text-sm font-bold text-[#D62828]">
@@ -244,7 +266,9 @@ export default function AdminPage() {
                   </span>
                 </div>
               ))}
-              {!topProducts.length && <p className="text-sm text-gray-500">Sem vendas registradas ainda.</p>}
+              {!topProducts.length && (
+                <p className="text-sm text-gray-500">Sem vendas registradas ainda.</p>
+              )}
             </div>
           </section>
         </div>
@@ -255,35 +279,39 @@ export default function AdminPage() {
             <h2 className="mt-2 text-2xl font-black">Estoque baixo</h2>
             <div className="mt-6 space-y-3">
               {lowStockProducts.slice(0, 8).map((product) => (
-                <div key={product.id} className="flex items-center justify-between rounded-xl border border-border p-4">
+                <div
+                  key={product.id}
+                  className="flex items-center justify-between rounded-xl border border-border p-4"
+                >
                   <div>
                     <p className="font-semibold text-[#111]">{product.name}</p>
-                    <p className="text-sm text-gray-500">{product.category?.name || 'Sem categoria'}</p>
+                    <p className="text-sm text-gray-500">
+                      {product.category?.name || 'Sem categoria'}
+                    </p>
                   </div>
                   <span className="rounded-full bg-[#D62828]/10 px-3 py-1 text-sm font-bold text-[#D62828]">
                     {product.stock}
                   </span>
                 </div>
               ))}
-              {!lowStockProducts.length && <p className="text-sm text-gray-500">Estoque em nivel confortavel.</p>}
+              {!lowStockProducts.length && (
+                <p className="text-sm text-gray-500">Estoque em nivel confortavel.</p>
+              )}
             </div>
           </section>
         </aside>
       </div>
 
-      <ProductManagement
-        categories={categories}
-        onProductsChanged={() => fetchProducts(0, 100)}
-      />
+      <ProductManagement categories={categories} onProductsChanged={() => fetchProducts(0, 100)} />
     </div>
   );
 }
 
 function MetricCard({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
-    <div className="rounded-[2rem] border border-[#f1e4db] bg-white p-6 shadow-sm">
-      <p className="text-sm uppercase tracking-[0.25em] text-[#D62828]">{label}</p>
-      <p className="mt-4 text-3xl font-bold">{value}</p>
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">{label}</p>
+      <p className="mt-3 text-3xl font-black">{value}</p>
       <p className="mt-2 text-sm text-gray-500">{detail}</p>
     </div>
   );

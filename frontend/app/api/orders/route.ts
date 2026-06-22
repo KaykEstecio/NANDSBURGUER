@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const query = paginationQuerySchema.parse({
       skip: searchParams.get('skip') ?? undefined,
-      take: searchParams.get('take') ?? undefined
+      take: searchParams.get('take') ?? undefined,
     });
 
     // Se for ADMIN, retorna todos os pedidos
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   try {
     const user = authenticateToken(request);
     const order = await orderService.createOrder(user.userId);
-    
+
     return createdResponse(order);
   } catch (error) {
     return handleApiError(error);

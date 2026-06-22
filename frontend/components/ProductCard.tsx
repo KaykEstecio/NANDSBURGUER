@@ -7,14 +7,6 @@ import { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { formatCurrency } from '../lib/utils';
-import { Badge } from './ui/badge';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from './ui/card';
 import { Button } from './ui/button';
 
 interface ProductCardProps {
@@ -22,67 +14,60 @@ interface ProductCardProps {
 }
 
 const CATEGORY_IMAGES: Record<string, string> = {
-  bebidas: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=80',
-  combos: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?auto=format&fit=crop&w=900&q=80',
-  porcoes: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=900&q=80',
-  hamburguers: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=80',
-  lanches: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=900&q=80',
-  sobremesas: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=900&q=80'
+  bebidas:
+    'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=900&q=80',
+  combos:
+    'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?auto=format&fit=crop&w=900&q=80',
+  porcoes:
+    'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=900&q=80',
+  hamburguers:
+    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=80',
+  lanches:
+    'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=900&q=80',
+  sobremesas:
+    'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=900&q=80',
 };
 
 const PRODUCT_IMAGES: Record<string, string> = {
-  'Nands Classic': 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80',
-  'Big Nands': 'https://images.unsplash.com/photo-1596662951482-0c4ba74a6df6?auto=format&fit=crop&w=900&q=80',
-  'Duplo Nands': 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?auto=format&fit=crop&w=900&q=80',
-  'Smash Cheddar': 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=900&q=80',
-  'Veggie Nands': 'https://images.unsplash.com/photo-1520072959219-c595dc870360?auto=format&fit=crop&w=900&q=80',
-  'Combo Classic': 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=900&q=80',
-  'Combo Big Nands': 'https://images.unsplash.com/photo-1610614819513-58e34989848b?auto=format&fit=crop&w=900&q=80',
-  'Combo Duplo': 'https://images.unsplash.com/photo-1610440042657-612c34d95e9f?auto=format&fit=crop&w=900&q=80',
-  'Combo Familia': 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?auto=format&fit=crop&w=900&q=80',
-  'Refrigerante Lata': 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=900&q=80',
-  'Refrigerante 600ml': 'https://images.unsplash.com/photo-1581636625402-29b2a704ef13?auto=format&fit=crop&w=900&q=80',
-  'Suco Natural': 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=900&q=80',
-  'Agua Mineral': 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=900&q=80',
-  'Milkshake Chocolate': 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=900&q=80',
-  'Brownie Nands': 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=900&q=80',
-  'Pudim da Casa': 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=900&q=80',
-  'Churros com Doce de Leite': 'https://images.unsplash.com/photo-1624371414361-e670edf4898d?auto=format&fit=crop&w=900&q=80',
-  'Batata Frita Pequena': 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=80',
-  'Batata Cheddar e Bacon': 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=900&q=80',
-  'Aneis de Cebola': 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=900&q=80',
-  'Nuggets da Casa': 'https://images.unsplash.com/photo-1562967916-eb82221dfb92?auto=format&fit=crop&w=900&q=80',
-  'Hot Dog Nands': 'https://images.unsplash.com/photo-1612392062631-94dd858cba88?auto=format&fit=crop&w=900&q=80',
-  'Beirute de Carne': 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?auto=format&fit=crop&w=900&q=80',
-  'Frango Crispy': 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=900&q=80',
-  'Misto Nands': 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=80'
+  'Nands Classic':
+    'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80',
+  'Big Nands':
+    'https://images.unsplash.com/photo-1596662951482-0c4ba74a6df6?auto=format&fit=crop&w=900&q=80',
+  'Duplo Nands':
+    'https://images.unsplash.com/photo-1553979459-d2229ba7433b?auto=format&fit=crop&w=900&q=80',
+  'Smash Cheddar':
+    'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=900&q=80',
+  'Veggie Nands':
+    'https://images.unsplash.com/photo-1520072959219-c595dc870360?auto=format&fit=crop&w=900&q=80',
+  'Combo Classic':
+    'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=900&q=80',
+  'Combo Big Nands':
+    'https://images.unsplash.com/photo-1610614819513-58e34989848b?auto=format&fit=crop&w=900&q=80',
+  'Combo Duplo':
+    'https://images.unsplash.com/photo-1610440042657-612c34d95e9f?auto=format&fit=crop&w=900&q=80',
 };
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80';
 
 function getProductImage(product: Product) {
-  if (product.imageUrl) {
-    return product.imageUrl;
-  }
+  if (product.imageUrl) return product.imageUrl;
+  if (PRODUCT_IMAGES[product.name]) return PRODUCT_IMAGES[product.name];
+  return CATEGORY_IMAGES[product.category?.name?.toLowerCase() || ''] ?? FALLBACK_IMAGE;
+}
 
-  if (PRODUCT_IMAGES[product.name]) {
-    return PRODUCT_IMAGES[product.name];
-  }
-
+function getCommercialBadge(product: Product) {
+  const name = product.name.toLowerCase();
   const category = product.category?.name?.toLowerCase() || '';
-  return CATEGORY_IMAGES[category] ?? FALLBACK_IMAGE;
+  if (name.includes('big') || name.includes('classic')) return 'Mais vendido';
+  if (category.includes('combo') || name.includes('combo')) return 'Combo';
+  return null;
 }
 
 function AddIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" data-icon aria-hidden="true">
-      <path
-        d="M12 5v14M5 12h14"
-        stroke="currentColor"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
+      <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -94,6 +79,8 @@ export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const available = product.stock > 0;
+  const commercialBadge = getCommercialBadge(product);
 
   async function handleAddToCart(event: React.MouseEvent) {
     event.preventDefault();
@@ -118,59 +105,68 @@ export function ProductCard({ product }: ProductCardProps) {
     }
   }
 
-  const available = product.stock > 0;
-
   return (
-    <Card className="group flex h-full flex-col overflow-hidden bg-card transition duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_20px_48px_rgba(48,25,12,0.14)]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-[0_12px_30px_rgba(45,25,16,0.08)] transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:shadow-[0_20px_44px_rgba(45,25,16,0.14)]">
       <Link href={`/products/${product.id}`} className="flex flex-1 flex-col">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted sm:aspect-[5/4]">
           <div
             className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105"
             style={{ backgroundImage: `url(${getProductImage(product)})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/[0.62] via-black/10 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
           <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-2">
-            <Badge className="bg-white/90 text-[#15110f] shadow-sm backdrop-blur">
+            <span className="rounded-md bg-[#171412] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.08em] text-white shadow-lg">
               {product.category?.name || 'Produto'}
-            </Badge>
-            {!available && <Badge variant="destructive">Esgotado</Badge>}
+            </span>
+            {!available ? (
+              <span className="rounded-md bg-primary px-3 py-1.5 text-[11px] font-black uppercase text-white">
+                Esgotado
+              </span>
+            ) : commercialBadge ? (
+              <span className="rounded-md bg-secondary px-3 py-1.5 text-[11px] font-black uppercase text-secondary-foreground">
+                {commercialBadge}
+              </span>
+            ) : null}
           </div>
-          <span className="absolute bottom-4 right-4 rounded-full bg-[#15110f]/90 px-4 py-2 text-base font-black text-secondary shadow-lg backdrop-blur">
-            {formatCurrency(product.price)}
-          </span>
         </div>
 
-        <CardHeader className="p-5 pb-2">
-          <CardTitle className="text-xl sm:text-2xl">{product.name}</CardTitle>
-        </CardHeader>
-
-        <CardContent className="flex flex-1 flex-col gap-4 p-5 pt-0">
-          <p className="line-clamp-2 min-h-12 text-sm leading-6 text-muted-foreground">
-            {product.description || 'Produto preparado na chapa da Nands Burguer.'}
+        <div className="flex flex-1 flex-col p-5 sm:p-6">
+          <h3 className="display-title text-2xl leading-none">{product.name}</h3>
+          <p className="mt-3 line-clamp-2 min-h-12 text-sm leading-6 text-muted-foreground">
+            {product.description || 'Preparado na chapa da Nands Burguer.'}
           </p>
-          <div className="mt-auto flex items-center justify-between border-t border-border/70 pt-4 text-sm">
-            <span className="font-bold text-foreground">
-              {available ? 'Saindo da chapa' : 'Volta em breve'}
-            </span>
-            <span className="font-semibold text-muted-foreground">
-              {available ? `${product.stock} un.` : 'sem estoque'}
+          <div className="mt-5 flex items-end justify-between gap-4 border-t border-border pt-5">
+            <div>
+              <span className="block text-[10px] font-black uppercase tracking-[0.12em] text-muted-foreground">
+                A partir de
+              </span>
+              <strong className="display-title mt-1 block text-3xl text-primary">
+                {formatCurrency(product.price)}
+              </strong>
+            </div>
+            <span className="text-xs font-bold text-muted-foreground">
+              {available ? 'Disponível' : 'Volta em breve'}
             </span>
           </div>
-        </CardContent>
+        </div>
       </Link>
 
-      <CardFooter className="flex-col items-stretch gap-2 p-5 pt-0">
+      <div className="p-5 pt-0 sm:px-6 sm:pb-6">
         <Button
           onClick={handleAddToCart}
           disabled={!available || isAdding}
-          className="w-full"
+          className="w-full rounded-lg"
         >
           <AddIcon />
-          {isAdding ? 'Adicionando...' : added ? 'Adicionado ao carrinho' : 'Adicionar'}
+          {isAdding ? 'Adicionando...' : added ? 'Adicionado' : 'Adicionar ao carrinho'}
         </Button>
-        {error ? <p className="text-center text-sm font-semibold text-primary">{error}</p> : null}
-        {added ? <p className="text-center text-xs font-bold text-emerald-700">Item pronto no seu carrinho.</p> : null}
-      </CardFooter>
-    </Card>
+        {error && <p className="mt-3 text-center text-sm font-bold text-primary">{error}</p>}
+        {added && (
+          <p className="mt-3 text-center text-xs font-bold text-emerald-700">
+            Item adicionado ao seu pedido.
+          </p>
+        )}
+      </div>
+    </article>
   );
 }

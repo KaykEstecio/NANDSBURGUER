@@ -19,7 +19,7 @@ const emptyForm = {
   price: '',
   stock: '',
   categoryId: '',
-  isActive: true
+  isActive: true,
 };
 
 interface ProductManagementProps {
@@ -27,10 +27,7 @@ interface ProductManagementProps {
   onProductsChanged: () => void;
 }
 
-export function ProductManagement({
-  categories,
-  onProductsChanged
-}: ProductManagementProps) {
+export function ProductManagement({ categories, onProductsChanged }: ProductManagementProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -60,7 +57,7 @@ export function ProductManagement({
         search: search || undefined,
         categoryId: categoryId || undefined,
         isActive: status === 'ALL' ? undefined : status === 'ACTIVE',
-        lowStock: lowStock || undefined
+        lowStock: lowStock || undefined,
       });
       setProducts(result.products);
       setTotal(result.total);
@@ -98,13 +95,13 @@ export function ProductManagement({
       price: String(product.price),
       stock: String(product.stock),
       categoryId: product.categoryId,
-      isActive: product.isActive
+      isActive: product.isActive,
     });
     setMessage('');
     setError('');
     document.getElementById('product-editor')?.scrollIntoView({
       behavior: 'smooth',
-      block: 'start'
+      block: 'start',
     });
   }
 
@@ -136,7 +133,7 @@ export function ProductManagement({
       price: Number(form.price),
       stock: Number(form.stock),
       categoryId: form.categoryId,
-      isActive: form.isActive
+      isActive: form.isActive,
     };
 
     try {
@@ -167,9 +164,7 @@ export function ProductManagement({
     try {
       const nextStatus = !product.isActive;
       await apiClient.updateProduct(product.id, { isActive: nextStatus });
-      setMessage(
-        `Produto "${product.name}" ${nextStatus ? 'ativado' : 'desativado'} com sucesso.`
-      );
+      setMessage(`Produto "${product.name}" ${nextStatus ? 'ativado' : 'desativado'} com sucesso.`);
       await loadProducts();
       onProductsChanged();
     } catch (statusError) {
@@ -312,12 +307,14 @@ export function ProductManagement({
                   <div
                     className="aspect-square rounded-lg bg-muted bg-cover bg-center"
                     style={
-                      product.imageUrl
-                        ? { backgroundImage: `url(${product.imageUrl})` }
-                        : undefined
+                      product.imageUrl ? { backgroundImage: `url(${product.imageUrl})` } : undefined
                     }
                     role="img"
-                    aria-label={product.imageUrl ? `Imagem de ${product.name}` : 'Produto sem imagem personalizada'}
+                    aria-label={
+                      product.imageUrl
+                        ? `Imagem de ${product.name}`
+                        : 'Produto sem imagem personalizada'
+                    }
                   />
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -335,12 +332,19 @@ export function ProductManagement({
                     <p className="mt-1 text-sm text-muted-foreground">
                       {product.category?.name || 'Sem categoria'} - {formatCurrency(product.price)}
                     </p>
-                    <p className={`mt-1 text-sm font-bold ${product.stock <= 10 ? 'text-primary' : ''}`}>
+                    <p
+                      className={`mt-1 text-sm font-bold ${product.stock <= 10 ? 'text-primary' : ''}`}
+                    >
                       Estoque: {product.stock}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 sm:justify-end">
-                    <Button type="button" variant="outline" size="sm" onClick={() => startEditing(product)}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => startEditing(product)}
+                    >
                       Editar
                     </Button>
                     <Button
@@ -497,11 +501,20 @@ export function ProductManagement({
 
           <div className="mt-6 grid gap-2 sm:grid-cols-2">
             {editingProduct ? (
-              <Button type="button" variant="outline" onClick={resetForm} className="border-white/20 bg-transparent text-white hover:bg-white/10">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetForm}
+                className="border-white/20 bg-transparent text-white hover:bg-white/10"
+              >
                 Cancelar
               </Button>
             ) : null}
-            <Button type="submit" disabled={isSaving} className={editingProduct ? '' : 'sm:col-span-2'}>
+            <Button
+              type="submit"
+              disabled={isSaving}
+              className={editingProduct ? '' : 'sm:col-span-2'}
+            >
               {isSaving ? 'Salvando...' : editingProduct ? 'Salvar alteracoes' : 'Criar produto'}
             </Button>
           </div>

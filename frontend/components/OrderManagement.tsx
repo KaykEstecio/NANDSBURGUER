@@ -8,7 +8,7 @@ import {
   formatDateTime,
   getDisplayOrderNumber,
   getInvoiceAccessKey,
-  getInvoiceNumber
+  getInvoiceNumber,
 } from '../lib/invoice';
 import { Button } from './ui/button';
 import { Input, inputClassName } from './ui/input';
@@ -31,7 +31,7 @@ const statusOptions: Array<{ value: OrderStatusFilter; label: string }> = [
   { value: 'PENDING', label: 'Pendentes' },
   { value: 'PAID', label: 'Pagos' },
   { value: 'FAILED', label: 'Falhas' },
-  { value: 'CANCELLED', label: 'Cancelados' }
+  { value: 'CANCELLED', label: 'Cancelados' },
 ];
 
 export function OrderManagement() {
@@ -66,9 +66,7 @@ export function OrderManagement() {
       setUpdatingStatus(orderId);
       setError('');
       const updatedOrder = await apiClient.updateOrderStatus(orderId, newStatus);
-      setOrders((current) =>
-        current.map((order) => (order.id === orderId ? updatedOrder : order))
-      );
+      setOrders((current) => current.map((order) => (order.id === orderId ? updatedOrder : order)));
       setSelectedOrder((current) => (current?.id === orderId ? updatedOrder : current));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao atualizar status');
@@ -98,7 +96,7 @@ export function OrderManagement() {
   }
 
   return (
-    <div className="page-shell">
+    <div className="admin-shell page-shell">
       <section className="surface-panel rounded-[1.25rem] p-6 sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -173,7 +171,9 @@ export function OrderManagement() {
                       <span className="font-black">Pedido #{getDisplayOrderNumber(order)}</span>
                       <OrderStatusBadge status={order.status} />
                     </div>
-                    <p className="mt-2 truncate text-sm font-semibold">{order.user?.name || 'Cliente'}</p>
+                    <p className="mt-2 truncate text-sm font-semibold">
+                      {order.user?.name || 'Cliente'}
+                    </p>
                     <p className="truncate text-xs text-muted-foreground">{order.user?.email}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {formatDateTime(order.createdAt)}
@@ -197,7 +197,9 @@ export function OrderManagement() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-black text-muted-foreground">PEDIDO</p>
-                  <h2 className="mt-1 text-2xl font-black">#{getDisplayOrderNumber(selectedOrder)}</h2>
+                  <h2 className="mt-1 text-2xl font-black">
+                    #{getDisplayOrderNumber(selectedOrder)}
+                  </h2>
                 </div>
                 <OrderStatusBadge status={selectedOrder.status} />
               </div>
@@ -224,7 +226,10 @@ export function OrderManagement() {
                 <p className="text-xs font-black text-muted-foreground">ITENS</p>
                 <div className="mt-3 max-h-52 space-y-2 overflow-y-auto pr-1">
                   {selectedOrder.items?.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg bg-muted/60 p-3 text-sm">
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-3 rounded-lg bg-muted/60 p-3 text-sm"
+                    >
                       <div className="min-w-0">
                         <p className="truncate font-bold">{item.product?.name}</p>
                         <p className="text-xs text-muted-foreground">Quantidade: {item.quantity}</p>
@@ -241,7 +246,13 @@ export function OrderManagement() {
                     <p className="text-xs font-bold text-muted-foreground">Nota simplificada</p>
                     <p className="mt-1 text-sm font-black">{getInvoiceNumber(selectedOrder)}</p>
                   </div>
-                  <Button type="button" size="sm" variant="outline" onClick={() => window.print()} className="print-hide">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.print()}
+                    className="print-hide"
+                  >
                     Imprimir
                   </Button>
                 </div>
@@ -256,7 +267,9 @@ export function OrderManagement() {
                     key={status}
                     variant={selectedOrder.status === status ? 'secondary' : 'outline'}
                     size="sm"
-                    disabled={updatingStatus === selectedOrder.id || selectedOrder.status === status}
+                    disabled={
+                      updatingStatus === selectedOrder.id || selectedOrder.status === status
+                    }
                     onClick={() => updateOrderStatus(selectedOrder.id, status)}
                   >
                     {statusOptions.find((option) => option.value === status)?.label}

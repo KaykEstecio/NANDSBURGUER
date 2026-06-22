@@ -2,13 +2,14 @@ import * as React from 'react';
 import { cn } from '../../lib/utils';
 
 export const inputClassName =
-  'h-11 w-full rounded-xl border border-input bg-background px-4 text-sm font-semibold text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60';
+  'h-12 w-full rounded-lg border-2 border-input bg-card px-4 text-sm font-semibold text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60';
 
-export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ className, ...props }, ref) => (
-    <input ref={ref} className={cn(inputClassName, className)} {...props} />
-  )
-);
+export const Input = React.forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement>
+>(({ className, ...props }, ref) => (
+  <input ref={ref} className={cn(inputClassName, className)} {...props} />
+));
 Input.displayName = 'Input';
 
 export const Textarea = React.forwardRef<

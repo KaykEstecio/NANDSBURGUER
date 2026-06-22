@@ -30,17 +30,9 @@ export class ApiError extends Error {
 }
 
 function serializeValue(value: unknown): unknown {
-  if (value instanceof Prisma.Decimal) {
-    return value.toNumber();
-  }
-
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-
-  if (Array.isArray(value)) {
-    return value.map(serializeValue);
-  }
+  if (value instanceof Prisma.Decimal) return value.toNumber();
+  if (value instanceof Date) return value.toISOString();
+  if (Array.isArray(value)) return value.map(serializeValue);
 
   if (value && typeof value === 'object') {
     return Object.fromEntries(
@@ -52,22 +44,14 @@ function serializeValue(value: unknown): unknown {
 }
 
 export function successResponse<T>(data: T, status = 200, message = 'OK') {
-  return NextResponse.json(
-    { success: true, data: serializeValue(data), message },
-    { status }
-  );
+  return NextResponse.json({ success: true, data: serializeValue(data), message }, { status });
 }
 
 export function createdResponse<T>(data: T) {
   return successResponse(data, 201, 'Criado com sucesso');
 }
 
-export function errorResponse(
-  message: string,
-  status = 400,
-  code?: string,
-  details?: unknown
-) {
+export function errorResponse(message: string, status = 400, code?: string, details?: unknown) {
   const response: ApiErrorResponse = { success: false, error: message };
   if (code) response.code = code;
   if (details) response.details = details;
@@ -103,11 +87,13 @@ export function handleApiError(error: unknown) {
     return validationErrorResponse(error.flatten());
   }
 
-  if (error instanceof Error) {
-    return errorResponse(error.message, 400, 'BAD_REQUEST');
+  if (process.env.NODE_ENV !== 'test') {
+    console.error('Unexpected API error:', error);
   }
 
-  return internalErrorResponse();
+  return internalErrorResponse(
+    'O serviço está temporariamente indisponível. Verifique a conexão com o banco de dados.'
+  );
 }
 
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;

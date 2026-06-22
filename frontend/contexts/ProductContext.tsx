@@ -64,7 +64,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         error,
         fetchProducts,
         fetchCategories,
-        fetchProduct
+        fetchProduct,
       }}
     >
       {children}

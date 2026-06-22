@@ -3,38 +3,39 @@
 @tailwind utilities;
 
 :root {
-  --background: 38 38% 96%;
-  --foreground: 20 16% 8%;
-  --card: 0 0% 100%;
-  --card-foreground: 20 16% 8%;
+  --background: 35 38% 95%;
+  --foreground: 24 14% 8%;
+  --card: 36 43% 98%;
+  --card-foreground: 24 14% 8%;
   --popover: 0 0% 100%;
-  --popover-foreground: 20 16% 8%;
-  --primary: 0 69% 50%;
+  --popover-foreground: 24 14% 8%;
+  --primary: 358 72% 33%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 35 100% 49%;
-  --secondary-foreground: 20 16% 8%;
-  --muted: 31 32% 90%;
-  --muted-foreground: 24 11% 39%;
-  --accent: 35 100% 49%;
-  --accent-foreground: 20 16% 8%;
-  --destructive: 0 69% 50%;
+  --secondary: 41 76% 52%;
+  --secondary-foreground: 24 14% 8%;
+  --muted: 32 25% 88%;
+  --muted-foreground: 24 9% 38%;
+  --accent: 41 76% 52%;
+  --accent-foreground: 24 14% 8%;
+  --destructive: 358 72% 33%;
   --destructive-foreground: 0 0% 100%;
-  --border: 28 29% 86%;
-  --input: 28 29% 86%;
-  --ring: 35 100% 49%;
-  --brand-red: #d62828;
-  --brand-yellow: #f77f00;
-  --brand-black: #111111;
-  --brand-cream: #fff7ed;
-  --brand-charcoal: #15110f;
-  --font-sans: Inter, Arial, Helvetica, system-ui, sans-serif;
-  --font-heading: Inter, Arial, Helvetica, system-ui, sans-serif;
+  --border: 29 21% 82%;
+  --input: 29 21% 82%;
+  --ring: 358 72% 33%;
+  --brand-red: #8f171b;
+  --brand-red-dark: #681014;
+  --brand-yellow: #e5a823;
+  --brand-black: #171412;
+  --brand-cream: #f7f0e7;
+  --brand-paper: #fffaf4;
+  --font-sans: 'Trebuchet MS', Arial, Helvetica, system-ui, sans-serif;
+  --font-heading: Impact, Haettenschweiler, 'Arial Narrow Bold', 'Arial Narrow', sans-serif;
 }
 
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 html {
@@ -42,12 +43,16 @@ html {
 }
 
 body {
-  font-family: var(--font-sans);
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(247, 127, 0, 0.12), transparent 34rem),
-    linear-gradient(180deg, #fffaf3 0%, #f7efe5 46%, #fff8f0 100%);
+  background-color: var(--brand-cream);
+  background-image:
+    radial-gradient(rgba(23, 20, 18, 0.035) 0.7px, transparent 0.7px),
+    linear-gradient(180deg, #fffaf4 0%, #f7f0e7 100%);
+  background-size:
+    7px 7px,
+    100% 100%;
   color: hsl(var(--foreground));
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -62,9 +67,14 @@ h3,
 h4,
 h5,
 h6,
-button,
-a {
+button {
   font-family: var(--font-heading);
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
 }
 
 button,
@@ -75,7 +85,7 @@ textarea {
 }
 
 ::selection {
-  background: rgba(214, 40, 40, 0.2);
+  background: rgba(143, 23, 27, 0.2);
 }
 
 img {
@@ -85,14 +95,14 @@ img {
 
 @layer base {
   :focus-visible {
-    outline: 2px solid rgba(214, 40, 40, 0.8);
+    outline: 3px solid rgba(229, 168, 35, 0.9);
     outline-offset: 3px;
   }
 
   .surface-panel {
-    border: 1px solid hsl(var(--border) / 0.8);
+    border: 1px solid hsl(var(--border) / 0.9);
     background: hsl(var(--card));
-    box-shadow: 0 10px 30px rgba(48, 25, 12, 0.06);
+    box-shadow: 0 12px 34px rgba(45, 25, 16, 0.07);
   }
 
   .page-shell {
@@ -104,14 +114,37 @@ img {
 
   .burger-noise {
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 28px 28px;
+      radial-gradient(rgba(255, 255, 255, 0.08) 0.7px, transparent 0.7px),
+      linear-gradient(110deg, transparent 0 62%, rgba(229, 168, 35, 0.06) 62% 63%, transparent 63%);
+    background-size:
+      8px 8px,
+      100% 100%;
+  }
+
+  .display-title {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+  }
+
+  .brand-rule {
+    height: 4px;
+    width: 4rem;
+    background: var(--brand-yellow);
+  }
+
+  .admin-shell h1,
+  .admin-shell h2,
+  .admin-shell h3,
+  .admin-shell button {
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
   }
 
   .menu-scrollbar {
+    scrollbar-color: rgba(143, 23, 27, 0.55) transparent;
     scrollbar-width: thin;
-    scrollbar-color: rgba(214, 40, 40, 0.55) transparent;
   }
 
   .menu-scrollbar::-webkit-scrollbar {
@@ -120,8 +153,8 @@ img {
   }
 
   .menu-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(214, 40, 40, 0.55);
     border-radius: 999px;
+    background: rgba(143, 23, 27, 0.55);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -144,7 +177,7 @@ img {
 
 @media print {
   body {
-    background: #ffffff;
+    background: #fff;
   }
 
   body * {
@@ -163,10 +196,10 @@ img {
     max-width: 760px;
     margin: 0;
     padding: 24px;
-    color: #111111;
-    background: #ffffff;
     border: 0;
+    background: #fff;
     box-shadow: none;
+    color: #111;
   }
 
   .print-hide,

@@ -7,7 +7,7 @@ import { LoginInput, RegisterInput } from './validators';
 export class AuthService {
   async register(input: RegisterInput) {
     const existingUser = await prisma.user.findUnique({
-      where: { email: input.email }
+      where: { email: input.email },
     });
 
     if (existingUser) {
@@ -20,14 +20,14 @@ export class AuthService {
       data: {
         email: input.email,
         password: hashedPassword,
-        name: input.name
-      }
+        name: input.name,
+      },
     });
 
     const token = generateToken({
       userId: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
     });
 
     return {
@@ -35,15 +35,15 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role
+        role: user.role,
       },
-      token
+      token,
     };
   }
 
   async login(input: LoginInput) {
     const user = await prisma.user.findUnique({
-      where: { email: input.email }
+      where: { email: input.email },
     });
 
     if (!user) {
@@ -59,7 +59,7 @@ export class AuthService {
     const token = generateToken({
       userId: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
     });
 
     return {
@@ -67,15 +67,15 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role
+        role: user.role,
       },
-      token
+      token,
     };
   }
 
   async getMe(userId: string) {
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!user) {
@@ -86,7 +86,7 @@ export class AuthService {
       id: user.id,
       email: user.email,
       name: user.name,
-      role: user.role
+      role: user.role,
     };
   }
 }

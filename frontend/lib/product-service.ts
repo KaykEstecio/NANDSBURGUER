@@ -34,7 +34,7 @@ export class ProductService {
       skip,
       take,
       include: { category: true },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
 
     const total = await prisma.product.count({ where });
@@ -45,7 +45,7 @@ export class ProductService {
   async getProductById(id: string, includeInactive = false) {
     return prisma.product.findFirst({
       where: { id, ...(includeInactive ? {} : { isActive: true }) },
-      include: { category: true }
+      include: { category: true },
     });
   }
 
@@ -53,9 +53,9 @@ export class ProductService {
     return prisma.product.create({
       data: {
         ...data,
-        createdById: userId
+        createdById: userId,
       },
-      include: { category: true }
+      include: { category: true },
     });
   }
 
@@ -63,7 +63,7 @@ export class ProductService {
     return prisma.product.update({
       where: { id },
       data,
-      include: { category: true }
+      include: { category: true },
     });
   }
 
@@ -71,7 +71,7 @@ export class ProductService {
     return prisma.product.update({
       where: { id },
       data: { isActive: false },
-      include: { category: true }
+      include: { category: true },
     });
   }
 
@@ -80,9 +80,9 @@ export class ProductService {
       where: { id: productId, stock: { gte: quantity } },
       data: {
         stock: {
-          decrement: quantity
-        }
-      }
+          decrement: quantity,
+        },
+      },
     });
 
     if (updated.count === 0) {
@@ -95,7 +95,7 @@ export class ProductService {
   async getStock(productId: string) {
     const product = await prisma.product.findUnique({
       where: { id: productId },
-      select: { stock: true }
+      select: { stock: true },
     });
 
     return product?.stock || 0;

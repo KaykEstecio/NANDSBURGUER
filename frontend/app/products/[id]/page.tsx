@@ -73,7 +73,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 backgroundImage: `url(${
                   product.imageUrl ||
                   'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=85'
-                })`
+                })`,
               }}
               role="img"
               aria-label={`Imagem de ${product.name}`}
@@ -88,18 +88,24 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           <div className="space-y-6 rounded-[2rem] border border-[#f1e4db] bg-[#fff8f0] p-8 shadow-sm">
             <div className="rounded-[1.5rem] bg-white p-6 shadow-sm">
               <p className="text-sm uppercase tracking-[0.35em] text-[#D62828]">Preço</p>
-              <p className="mt-4 text-5xl font-bold text-[#D62828]">R$ {product.price.toFixed(2)}</p>
+              <p className="mt-4 text-5xl font-bold text-[#D62828]">
+                R$ {product.price.toFixed(2)}
+              </p>
             </div>
 
             <div className="rounded-[1.5rem] bg-white p-6 shadow-sm">
               <p className="text-sm uppercase tracking-[0.35em] text-[#000000]">Disponibilidade</p>
-              <span className={`mt-4 inline-flex rounded-full px-4 py-2 text-sm font-semibold ${product.stock > 0 ? 'bg-[#F77F00]/15 text-[#000000]' : 'bg-[#D62828]/15 text-[#8b1818]'}`}>
+              <span
+                className={`mt-4 inline-flex rounded-full px-4 py-2 text-sm font-semibold ${product.stock > 0 ? 'bg-[#F77F00]/15 text-[#000000]' : 'bg-[#D62828]/15 text-[#8b1818]'}`}
+              >
                 {product.stock > 0 ? `${product.stock} em estoque` : 'Fora de estoque'}
               </span>
             </div>
 
             {error && (
-              <div className="rounded-[1.5rem] bg-[#ffe3e1] p-4 text-sm text-[#8b1818]">{error}</div>
+              <div className="rounded-[1.5rem] bg-[#ffe3e1] p-4 text-sm text-[#8b1818]">
+                {error}
+              </div>
             )}
 
             {product.stock > 0 && (
@@ -156,4 +162,3 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     </div>
   );
 }
-

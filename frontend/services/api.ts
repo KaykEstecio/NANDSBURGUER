@@ -11,20 +11,15 @@ class ApiClient {
       baseURL: apiUrl,
       withCredentials: true,
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
   }
 
   private unwrap<T>(response: { data: T | { success?: boolean; data?: T; error?: string } }): T {
     const payload = response.data;
 
-    if (
-      payload &&
-      typeof payload === 'object' &&
-      'success' in payload &&
-      'data' in payload
-    ) {
+    if (payload && typeof payload === 'object' && 'success' in payload && 'data' in payload) {
       return payload.data as T;
     }
 
@@ -46,7 +41,7 @@ class ApiClient {
       const response = await this.client.post('/auth/register', {
         email,
         password,
-        name
+        name,
       });
       return this.unwrap(response);
     } catch (error) {
@@ -58,7 +53,7 @@ class ApiClient {
     try {
       const response = await this.client.post('/auth/login', {
         email,
-        password
+        password,
       });
       return this.unwrap(response);
     } catch (error) {
@@ -78,7 +73,7 @@ class ApiClient {
   // Products
   async getProducts(skip = 0, take = 10) {
     const response = await this.client.get('/products', {
-      params: { skip, take }
+      params: { skip, take },
     });
     return this.unwrap(response);
   }
@@ -93,7 +88,7 @@ class ApiClient {
   }) {
     try {
       const response = await this.client.get('/products', {
-        params: { ...params, scope: 'admin' }
+        params: { ...params, scope: 'admin' },
       });
       return this.unwrap<ProductListResponse>(response);
     } catch (error) {
@@ -170,7 +165,7 @@ class ApiClient {
     try {
       const response = await this.client.post('/cart', {
         productId,
-        quantity
+        quantity,
       });
       return this.unwrap(response);
     } catch (error) {
@@ -182,7 +177,7 @@ class ApiClient {
     try {
       const response = await this.client.put(`/cart/${productId}`, {
         productId,
-        quantity
+        quantity,
       });
       return this.unwrap(response);
     } catch (error) {
@@ -192,7 +187,7 @@ class ApiClient {
 
   async removeFromCart(productId: string) {
     const response = await this.client.delete('/cart', {
-      params: { productId }
+      params: { productId },
     });
     return this.unwrap(response);
   }
@@ -234,14 +229,14 @@ class ApiClient {
 
   async getAllOrders(skip = 0, take = 10) {
     const response = await this.client.get('/orders', {
-      params: { skip, take }
+      params: { skip, take },
     });
     return this.unwrap(response);
   }
 
   async updateOrderStatus(id: string, status: string) {
     const response = await this.client.put(`/orders/${id}/status`, {
-      status
+      status,
     });
     return this.unwrap(response);
   }

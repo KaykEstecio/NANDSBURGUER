@@ -12,7 +12,7 @@ import {
   getDisplayOrderNumber,
   getInvoiceAccessKey,
   getInvoiceNumber,
-  getOrderSubtotal
+  getOrderSubtotal,
 } from '../../../lib/invoice';
 
 export default function OrderDetailPage() {
@@ -91,14 +91,21 @@ export default function OrderDetailPage() {
           <h2 className="text-2xl font-bold">Itens do pedido</h2>
           <div className="mt-6 space-y-4">
             {order.items?.map((item) => (
-              <div key={item.id} className="flex items-center justify-between gap-4 rounded-3xl border border-[#eee] p-4">
+              <div
+                key={item.id}
+                className="flex items-center justify-between gap-4 rounded-3xl border border-[#eee] p-4"
+              >
                 <div>
                   <p className="font-semibold text-[#111]">{item.product?.name}</p>
                   <p className="text-sm text-gray-500">{item.product?.category?.name}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">{item.quantity} x {formatCurrency(item.price)}</p>
-                  <p className="font-bold text-[#D62828]">{formatCurrency(item.quantity * item.price)}</p>
+                  <p className="text-sm text-gray-500">
+                    {item.quantity} x {formatCurrency(item.price)}
+                  </p>
+                  <p className="font-bold text-[#D62828]">
+                    {formatCurrency(item.quantity * item.price)}
+                  </p>
                 </div>
               </div>
             ))}
@@ -150,12 +157,16 @@ export default function OrderDetailPage() {
 
               <div className="rounded-2xl bg-[#f9f1e8] p-4">
                 <p className="text-xs uppercase tracking-[0.25em] text-[#D62828]">Cliente</p>
-                <p className="mt-2 font-semibold">{order.user?.name || invoice?.customer?.name || 'Cliente'}</p>
+                <p className="mt-2 font-semibold">
+                  {order.user?.name || invoice?.customer?.name || 'Cliente'}
+                </p>
                 <p className="text-gray-500">{order.user?.email || invoice?.customer?.email}</p>
               </div>
 
               <div>
-                <p className="text-xs uppercase tracking-[0.25em] text-[#D62828]">Chave de acesso</p>
+                <p className="text-xs uppercase tracking-[0.25em] text-[#D62828]">
+                  Chave de acesso
+                </p>
                 <p className="mt-2 break-all font-mono text-xs text-gray-600">{accessKey}</p>
               </div>
 

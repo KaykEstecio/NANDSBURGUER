@@ -2,16 +2,20 @@ import { RegisterForm } from '../../../components/RegisterForm';
 
 export default function RegisterPage() {
   return (
-    <div className="grid min-h-[calc(100vh-200px)] place-items-center px-4 py-12">
-      <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:justify-center lg:gap-16">
-        <div className="space-y-6 rounded-[2rem] border border-[#D62828]/30 bg-[#000000] p-10 text-white shadow-xl shadow-black/20">
-          <p className="text-sm uppercase tracking-[0.35em] text-[#D62828]">Nands Burger</p>
-          <h1 className="text-4xl font-bold">Crie sua conta e peça agora</h1>
-          <p className="max-w-sm text-gray-300">
-            Cadastre-se para ter pedidos salvos, histórico de compras e acesso ao balcão rápido.
+    <div className="grid min-h-[calc(100vh-220px)] place-items-center py-10">
+      <div className="grid w-full max-w-5xl overflow-hidden rounded-xl border border-border bg-card shadow-[0_24px_70px_rgba(23,20,18,0.15)] lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="burger-noise flex min-h-[500px] flex-col justify-end bg-primary p-8 text-white sm:p-10">
+          <div className="h-1 w-16 bg-secondary" />
+          <h1 className="display-title mt-6 max-w-md text-5xl leading-[0.92] sm:text-6xl">
+            Crie sua conta. A chapa já está quente.
+          </h1>
+          <p className="mt-5 max-w-md text-sm leading-7 text-white/75">
+            Cadastre-se para finalizar pedidos e acompanhar cada etapa.
           </p>
         </div>
-        <RegisterForm />
+        <div className="grid place-items-center p-5 sm:p-8">
+          <RegisterForm />
+        </div>
       </div>
     </div>
   );

@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         register,
         login,
-        logout
+        logout,
       }}
     >
       {children}

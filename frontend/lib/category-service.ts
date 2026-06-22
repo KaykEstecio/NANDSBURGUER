@@ -5,21 +5,21 @@ export class CategoryService {
   async getCategories() {
     return prisma.category.findMany({
       include: { products: true },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   async getCategoryById(id: string) {
     return prisma.category.findUnique({
       where: { id },
-      include: { products: true }
+      include: { products: true },
     });
   }
 
   async createCategory(data: CategoryCreateInput) {
     return prisma.category.create({
       data,
-      include: { products: true }
+      include: { products: true },
     });
   }
 
@@ -27,13 +27,13 @@ export class CategoryService {
     return prisma.category.update({
       where: { id },
       data,
-      include: { products: true }
+      include: { products: true },
     });
   }
 
   async deleteCategory(id: string) {
     return prisma.category.delete({
-      where: { id }
+      where: { id },
     });
   }
 }

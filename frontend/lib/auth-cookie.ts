@@ -10,7 +10,7 @@ export function setAuthCookie(response: NextResponse, token: string) {
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
-    maxAge: 60 * 60 * 24 * 7
+    maxAge: 60 * 60 * 24 * 7,
   });
 
   return response;
@@ -24,7 +24,7 @@ export function clearAuthCookie(response: NextResponse) {
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
-    maxAge: 0
+    maxAge: 0,
   });
 
   return response;

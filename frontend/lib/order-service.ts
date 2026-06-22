@@ -6,8 +6,8 @@ import { prisma } from './prisma';
 const orderInclude = {
   user: { select: { id: true, name: true, email: true } },
   items: {
-    include: { product: { include: { category: true } } }
-  }
+    include: { product: { include: { category: true } } },
+  },
 } satisfies Prisma.OrderInclude;
 
 export class OrderService {
@@ -16,7 +16,7 @@ export class OrderService {
       const cart = await tx.cartItem.findMany({
         where: { userId },
         include: { product: true },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
       });
 
       try {
@@ -34,7 +34,7 @@ export class OrderService {
       for (const item of cart) {
         const updated = await tx.product.updateMany({
           where: { id: item.productId, stock: { gte: item.quantity } },
-          data: { stock: { decrement: item.quantity } }
+          data: { stock: { decrement: item.quantity } },
         });
 
         if (updated.count === 0) {
@@ -55,11 +55,11 @@ export class OrderService {
             create: cart.map((item) => ({
               productId: item.productId,
               quantity: item.quantity,
-              price: item.product.price
-            }))
-          }
+              price: item.product.price,
+            })),
+          },
         },
-        include: orderInclude
+        include: orderInclude,
       });
 
       await tx.cartItem.deleteMany({ where: { userId } });
@@ -72,7 +72,7 @@ export class OrderService {
     return prisma.order.findMany({
       where: { userId },
       include: orderInclude,
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -82,7 +82,7 @@ export class OrderService {
 
     return prisma.order.findFirst({
       where,
-      include: orderInclude
+      include: orderInclude,
     });
   }
 
@@ -91,7 +91,7 @@ export class OrderService {
       skip,
       take,
       include: orderInclude,
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -99,7 +99,7 @@ export class OrderService {
     return prisma.order.update({
       where: { id },
       data: { status },
-      include: orderInclude
+      include: orderInclude,
     });
   }
 }

@@ -36,8 +36,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         typeof response.total === 'number'
           ? response.total
           : cartItems.reduce(
-              (sum: number, item: CartItemType) =>
-                sum + (item.product?.price || 0) * item.quantity,
+              (sum: number, item: CartItemType) => sum + (item.product?.price || 0) * item.quantity,
               0
             );
 
@@ -121,7 +120,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         addItem,
         updateItem,
         removeItem,
-        clearCart
+        clearCart,
       }}
     >
       {children}

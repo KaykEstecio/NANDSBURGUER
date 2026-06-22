@@ -27,7 +27,8 @@ function CloseIcon() {
 }
 
 export function CartSidebar({ open, onClose }: CartSidebarProps) {
-  const { items, total, fetchCart, updateItem, removeItem, isLoading, error, successMessage } = useCart();
+  const { items, total, fetchCart, updateItem, removeItem, isLoading, error, successMessage } =
+    useCart();
 
   useEffect(() => {
     if (open) {

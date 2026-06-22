@@ -1,138 +1,104 @@
 # NANDS Burguer
 
-Projeto integrador de faculdade: site de hamburgueria com catalogo, carrinho, pedidos, login de usuario e painel administrativo.
+Projeto integrador de faculdade: sistema web de hamburgueria com catálogo, autenticação, carrinho, checkout, pedidos, controle de estoque, nota simplificada e painel administrativo.
 
-## Tecnologias
+## Funcionalidades
 
-- Next.js 16
-- TypeScript
-- Tailwind CSS
-- Prisma
-- PostgreSQL
-- Docker apenas para o banco de dados
+- Cadastro, login, sessão por cookie HttpOnly e logout.
+- Catálogo organizado por categorias.
+- Carrinho persistido no PostgreSQL.
+- Fechamento de pedido com baixa de estoque em transação.
+- Histórico e detalhe dos pedidos.
+- Nota fiscal simplificada para demonstração acadêmica.
+- Painel administrativo para produtos, estoque e status dos pedidos.
 
-## Requisitos
+## Tecnologias e arquitetura
 
-- Node.js 20 ou superior
-- Docker Desktop
+- Next.js 16 com App Router e API Routes.
+- React, TypeScript e Tailwind CSS.
+- Prisma ORM com PostgreSQL.
+- JWT em cookie HttpOnly.
+- Docker somente para o PostgreSQL local.
 
-## Como rodar o projeto
+O projeto é um monólito: páginas e endpoints ficam dentro de `frontend`, enquanto o PostgreSQL é executado separadamente.
 
-Execute os comandos a partir da raiz do projeto.
+## Execução local
 
-1. Suba o banco PostgreSQL:
+Requisitos:
+
+- Node.js 20 ou superior.
+- Docker Desktop.
+
+Na raiz do repositório:
 
 ```powershell
 docker compose up -d postgres
-```
-
-2. Entre na pasta do app:
-
-```powershell
 cd frontend
-```
-
-3. Instale as dependencias:
-
-```powershell
 npm install
-```
-
-4. Crie o banco/tabelas com Prisma:
-
-```powershell
-npx prisma migrate dev --name init
-```
-
-5. Popule o banco com dados iniciais:
-
-```powershell
+npm run prisma:deploy
 npm run prisma:seed
-```
-
-Esse comando cria usuarios de teste e o cardapio inicial com hamburguers, combos, bebidas, sobremesas, porcoes e lanches.
-
-O sistema tambem gera uma nota fiscal simplificada para cada pedido finalizado. Ela fica disponivel na tela de detalhe do pedido e no gerenciamento administrativo.
-
-6. Rode o site:
-
-```powershell
 npm run dev
 ```
 
-Acesse:
+Acesse [http://localhost:3000](http://localhost:3000).
 
-```text
-http://localhost:3000
+Para conferir se o banco está ativo:
+
+```powershell
+docker compose ps
 ```
 
-## Usuarios de teste
+Para parar o banco depois da apresentação:
 
-O seed cria estes usuarios:
-
-```text
-Admin:
-email: admin@nands.com
-senha: 123456
-
-Usuario:
-email: teste@nands.com
-senha: 123456
+```powershell
+docker compose down
 ```
 
-## Banco de dados
+## Variáveis de ambiente
 
-O projeto usa PostgreSQL local via Docker.
-
-```text
-host: localhost
-porta: 5432
-banco: nands_db
-usuario: postgres
-senha: password
-```
-
-As variaveis de ambiente ficam em:
-
-```text
-frontend/.env
-```
-
-Exemplo:
+Crie `frontend/.env` a partir de `.env.example`:
 
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/nands_db"
-JWT_SECRET="your_super_secret_jwt_key_here_change_in_production"
+JWT_SECRET="troque_por_um_segredo_grande_e_seguro"
 JWT_EXPIRES_IN="7d"
 NEXT_PUBLIC_API_URL="/api"
 NODE_ENV="development"
 ```
 
-## Comandos uteis
+`JWT_SECRET` é obrigatório em produção.
+
+## Usuários de demonstração
+
+O seed cria:
+
+```text
+Administrador
+email: admin@nands.com
+senha: 123456
+
+Cliente
+email: teste@nands.com
+senha: 123456
+```
+
+Essas credenciais são apenas para demonstração acadêmica.
+
+## Verificações antes da entrega
+
+Dentro de `frontend`:
 
 ```powershell
-# Abrir interface visual do banco
-npx prisma studio
-
-# Parar o banco
-docker compose down
-
-# Rodar verificacao de tipos
+npm run format:check
+npm run lint
 npm run type-check
-
-# Gerar Prisma Client manualmente
-npx prisma generate
-
-# Recriar/atualizar o cardapio inicial
-npm run prisma:seed
-
-# Aplicar migrations em banco de producao
-npm run prisma:deploy
+npm test
+npm run build
 ```
 
 ## Deploy na Vercel
 
-O projeto esta dentro da pasta `frontend`. Ao importar o repositorio na Vercel, configure:
+Ao importar o repositório:
 
 ```text
 Root Directory: frontend
@@ -140,66 +106,49 @@ Framework Preset: Next.js
 Build Command: npm run vercel-build
 ```
 
-Crie um banco PostgreSQL externo, por exemplo Neon, Supabase ou Railway. O Docker local nao e usado em producao.
-
-Configure estas variaveis no painel da Vercel:
+Use um PostgreSQL externo, como Neon, Supabase ou Railway, e configure na Vercel:
 
 ```env
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
-JWT_SECRET="troque_por_um_segredo_grande_e_seguro"
+JWT_SECRET="um_segredo_grande_e_exclusivo"
 JWT_EXPIRES_IN="7d"
 NEXT_PUBLIC_API_URL="/api"
 NODE_ENV="production"
 ```
 
-O comando de build da Vercel roda:
-
-```powershell
-prisma generate
-next build
-```
-
-Antes de reimplantar, confirme que `DATABASE_URL` esta cadastrada em **Settings > Environment Variables** da Vercel. Se essa variavel estiver ausente ou com uma URL invalida, o Prisma falha durante `prisma generate`.
-
-Depois que o deploy compilar, aplique as migrations no banco de producao uma vez:
+Antes do primeiro uso do ambiente público, aplique migrations e seed com a URL do banco de produção:
 
 ```powershell
 cd frontend
-$env:DATABASE_URL="sua_url_do_postgres_de_producao"
+$env:DATABASE_URL="URL_DO_BANCO_DE_PRODUCAO"
 npm run prisma:deploy
-```
-
-Depois popule o banco de producao uma vez:
-
-```powershell
-cd frontend
-$env:DATABASE_URL="sua_url_do_postgres_de_producao"
 npm run prisma:seed
 ```
 
-Sem esse seed inicial, o site sobe, mas o cardapio com produtos de exemplo nao aparece.
+O Docker local não é usado pela Vercel.
 
-## Estrutura essencial
+## Roteiro rápido de apresentação
+
+1. Mostrar a página inicial e o cardápio.
+2. Entrar como cliente e adicionar um produto ao carrinho.
+3. Finalizar o pedido e abrir o detalhe/nota simplificada.
+4. Sair e entrar como administrador.
+5. Mostrar os indicadores, editar um produto e atualizar o status do pedido.
+6. Explicar que pedido, estoque e limpeza do carrinho são executados atomicamente.
+
+## Estrutura principal
 
 ```text
 .
-|-- docker-compose.yml      # PostgreSQL local
-|-- README.md               # Instrucoes do projeto
+|-- docker-compose.yml
+|-- README.md
 `-- frontend/
-    |-- app/                # Paginas e API Routes do Next.js
-    |-- components/         # Componentes React
-    |-- contexts/           # Estados globais
-    |-- lib/                # Prisma, auth e services internos
-    |-- prisma/             # Schema e seed do banco
-    |-- services/           # Cliente HTTP
-    |-- types/              # Tipos TypeScript
-    |-- package.json        # Scripts e dependencias do app
-    |-- vercel.json         # Configuracao de build da Vercel
-    `-- .env.example        # Exemplo de variaveis
+    |-- app/          # páginas e endpoints
+    |-- components/   # componentes da interface
+    |-- contexts/     # estados globais
+    |-- lib/          # regras, serviços, autenticação e Prisma
+    |-- prisma/       # schema, migrations e seed
+    |-- services/     # cliente HTTP
+    |-- tests/        # testes automatizados
+    `-- types/        # tipos TypeScript
 ```
-
-## Observacoes
-
-- Nao existe mais backend separado. A API fica em `frontend/app/api`.
-- O Docker e usado somente para subir o PostgreSQL.
-- Para apresentar o projeto, normalmente basta rodar `docker compose up -d postgres` e depois `npm run dev` dentro de `frontend`.

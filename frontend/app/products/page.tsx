@@ -16,7 +16,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   Bebidas: 'Bebida',
   Sobremesas: 'Doce',
   Porcoes: 'Porcao',
-  Lanches: 'Lanche'
+  Lanches: 'Lanche',
 };
 
 export default function ProductsPage() {
@@ -31,7 +31,8 @@ export default function ProductsPage() {
   const filteredProducts = useMemo(() => {
     if (!selectedCategory) return products;
     return products.filter(
-      (product) => product.categoryId === selectedCategory || product.category?.id === selectedCategory
+      (product) =>
+        product.categoryId === selectedCategory || product.category?.id === selectedCategory
     );
   }, [products, selectedCategory]);
 
@@ -46,12 +47,12 @@ export default function ProductsPage() {
             <Badge variant="secondary" className="border-0">
               Cardapio Nands
             </Badge>
-            <h1 className="mt-5 max-w-4xl text-5xl font-black leading-none tracking-normal sm:text-6xl">
+            <h1 className="mt-5 max-w-4xl text-4xl font-black leading-[0.96] tracking-normal sm:text-5xl lg:text-6xl">
               Escolha o combo, a chapa cuida do resto.
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-white/70">
-              Hamburguers artesanais, porcoes, bebidas e sobremesas com uma
-              experiencia de pedido simples para desktop e celular.
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/72 sm:text-base">
+              Hamburguers artesanais, porcoes, bebidas e sobremesas com uma experiencia de pedido
+              simples para desktop e celular.
             </p>
           </div>
           <Card className="border-white/10 bg-white/[0.06] text-white">
@@ -150,7 +151,8 @@ export default function ProductsPage() {
         <div className="flex flex-col gap-14">
           {categories.map((category) => {
             const categoryProducts = products.filter(
-              (product) => product.categoryId === category.id || product.category?.id === category.id
+              (product) =>
+                product.categoryId === category.id || product.category?.id === category.id
             );
 
             if (categoryProducts.length === 0) return null;

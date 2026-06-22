@@ -26,7 +26,7 @@ export default function ProfilePage() {
     () => ({
       total: orders.length,
       paid: orders.filter((order) => order.status === 'PAID').length,
-      pending: orders.filter((order) => order.status === 'PENDING').length
+      pending: orders.filter((order) => order.status === 'PENDING').length,
     }),
     [orders]
   );
@@ -43,7 +43,8 @@ export default function ProfilePage() {
             <p className="text-sm uppercase tracking-[0.35em] text-[#F77F00]">Perfil</p>
             <h1 className="mt-3 text-4xl font-bold">Bem-vindo de volta, {user?.name}</h1>
             <p className="mt-4 max-w-2xl text-gray-300">
-              Seus pedidos ficam sempre à mão. Acompanhe seus combos favoritos, histórico e acesse ofertas exclusivas da Nands Burger.
+              Seus pedidos ficam sempre à mão. Acompanhe seus combos favoritos, histórico e acesse
+              ofertas exclusivas da Nands Burger.
             </p>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -69,7 +70,9 @@ export default function ProfilePage() {
             <p className="text-sm uppercase tracking-[0.35em] text-[#F77F00]">Minhas informações</p>
             <p className="mt-5 text-2xl font-semibold">{user?.name}</p>
             <p className="mt-2 text-sm text-gray-300">{user?.email}</p>
-            <p className="mt-6 rounded-3xl bg-[#F77F00]/10 px-4 py-3 text-sm font-semibold text-[#111]">Perfil: {user?.role === 'ADMIN' ? 'Administrador' : 'Cliente'}</p>
+            <p className="mt-6 rounded-3xl bg-[#F77F00]/10 px-4 py-3 text-sm font-semibold text-[#111]">
+              Perfil: {user?.role === 'ADMIN' ? 'Administrador' : 'Cliente'}
+            </p>
           </div>
         </div>
       </section>
@@ -102,16 +105,21 @@ export default function ProfilePage() {
         ) : (
           <div className="mt-8 space-y-4">
             {orders.slice(0, 5).map((order) => (
-              <div key={order.id} className="rounded-3xl border border-[#eee] p-6 shadow-sm transition hover:-translate-y-0.5">
+              <div
+                key={order.id}
+                className="rounded-3xl border border-[#eee] p-6 shadow-sm transition hover:-translate-y-0.5"
+              >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">
-                      Pedido #{getDisplayOrderNumber(order)}
+                    <p className="text-sm text-gray-500">Pedido #{getDisplayOrderNumber(order)}</p>
+                    <p className="mt-1 text-lg font-semibold">
+                      Total: {formatCurrency(Number(order.total))}
                     </p>
-                    <p className="mt-1 text-lg font-semibold">Total: {formatCurrency(Number(order.total))}</p>
                   </div>
                   <div className="space-y-2 text-right">
-                    <span className="inline-flex rounded-full bg-[#F77F00]/15 px-4 py-2 text-sm font-semibold text-[#111]">{order.status}</span>
+                    <span className="inline-flex rounded-full bg-[#F77F00]/15 px-4 py-2 text-sm font-semibold text-[#111]">
+                      {order.status}
+                    </span>
                     <p className="text-sm text-gray-500">Itens: {order.items?.length ?? 0}</p>
                   </div>
                 </div>

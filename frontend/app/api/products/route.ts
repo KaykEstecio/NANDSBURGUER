@@ -5,7 +5,7 @@ import {
   createdResponse,
   forbiddenResponse,
   handleApiError,
-  successResponse
+  successResponse,
 } from '@/lib/api-helpers';
 import { productCreateSchema, productQuerySchema } from '@/lib/validators';
 
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       search: searchParams.get('search') ?? undefined,
       isActive: searchParams.get('isActive') ?? undefined,
       lowStock: searchParams.get('lowStock') ?? undefined,
-      scope: searchParams.get('scope') ?? undefined
+      scope: searchParams.get('scope') ?? undefined,
     });
 
     const includeInactive = query.scope === 'admin';
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       search: query.search,
       isActive: query.isActive,
       lowStock: query.lowStock,
-      includeInactive
+      includeInactive,
     });
     return successResponse(result);
   } catch (error) {
@@ -46,14 +46,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = authenticateToken(request);
-    
+
     if (user.role !== 'ADMIN') {
       return forbiddenResponse();
     }
 
     const data = productCreateSchema.parse(await request.json());
     const product = await productService.createProduct(data, user.userId);
-    
+
     return createdResponse(product);
   } catch (error) {
     return handleApiError(error);

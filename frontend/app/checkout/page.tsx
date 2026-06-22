@@ -7,12 +7,7 @@ import { useOrders } from '../../contexts/OrderContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '../../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Separator } from '../../components/ui/separator';
 import { cn, formatCurrency } from '../../lib/utils';
 
@@ -22,16 +17,16 @@ type PaymentMethod = 'card' | 'cash' | 'pix';
 const paymentCopy: Record<PaymentMethod, { title: string; copy: string }> = {
   card: {
     title: 'Cartao',
-    copy: 'Pagamento simulado com cartao na finalizacao.'
+    copy: 'Pagamento simulado com cartao na finalizacao.',
   },
   cash: {
     title: 'Dinheiro',
-    copy: 'Pague na retirada ou na entrega.'
+    copy: 'Pague na retirada ou na entrega.',
   },
   pix: {
     title: 'PIX',
-    copy: 'Use a chave simulada depois de confirmar o pedido.'
-  }
+    copy: 'Use a chave simulada depois de confirmar o pedido.',
+  },
 };
 
 function getProductImage(categoryName: string | undefined, name: string) {
@@ -82,7 +77,7 @@ export default function CheckoutPage() {
     complement: '',
     district: '',
     city: '',
-    state: ''
+    state: '',
   });
 
   useEffect(() => {
@@ -90,7 +85,7 @@ export default function CheckoutPage() {
       setCustomerData((current) => ({
         ...current,
         name: current.name || user.name,
-        email: current.email || user.email
+        email: current.email || user.email,
       }));
     }
   }, [user]);
@@ -107,13 +102,7 @@ export default function CheckoutPage() {
   }, [isAuthLoading, isAuthenticated, fetchCart, router]);
 
   useEffect(() => {
-    if (
-      isAuthLoading ||
-      !isAuthenticated ||
-      isLoading ||
-      isRedirectingToOrder ||
-      !hasLoadedCart
-    ) {
+    if (isAuthLoading || !isAuthenticated || isLoading || isRedirectingToOrder || !hasLoadedCart) {
       return;
     }
 
@@ -127,7 +116,7 @@ export default function CheckoutPage() {
     isLoading,
     isRedirectingToOrder,
     items.length,
-    router
+    router,
   ]);
 
   const validation = useMemo(() => {
@@ -189,8 +178,8 @@ export default function CheckoutPage() {
               Finalize o pedido sem tirar o olho da fome.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/[0.72] sm:text-base">
-              Revise entrega, informe os dados essenciais e escolha o jeito de
-              pagar. A Nands prepara o pedido assim que ele for confirmado.
+              Revise entrega, informe os dados essenciais e escolha o jeito de pagar. A Nands
+              prepara o pedido assim que ele for confirmado.
             </p>
           </div>
 
@@ -218,13 +207,13 @@ export default function CheckoutPage() {
                 {
                   value: 'pickup' as const,
                   label: 'Retirada no balcao',
-                  copy: 'Mais rapido para buscar na loja.'
+                  copy: 'Mais rapido para buscar na loja.',
                 },
                 {
                   value: 'delivery' as const,
                   label: 'Delivery',
-                  copy: 'Receba em casa com frete gratis.'
-                }
+                  copy: 'Receba em casa com frete gratis.',
+                },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -341,7 +330,7 @@ export default function CheckoutPage() {
                       onChange={(event) =>
                         setCustomerData({
                           ...customerData,
-                          state: event.target.value.toUpperCase().slice(0, 2)
+                          state: event.target.value.toUpperCase().slice(0, 2),
                         })
                       }
                       className={inputClassName(touchedSubmit && validation.state)}
@@ -385,16 +374,15 @@ export default function CheckoutPage() {
                         : 'border-border bg-card'
                     )}
                   >
-                    {paymentMethod === option && (
-                      <span className="size-2 rounded-full bg-white" />
-                    )}
+                    {paymentMethod === option && <span className="size-2 rounded-full bg-white" />}
                   </span>
                 </button>
               ))}
 
               {paymentMethod === 'pix' && (
                 <div className="rounded-[1.25rem] bg-muted p-4 text-sm text-muted-foreground">
-                  Chave PIX simulada: <strong className="text-foreground">pix@nandsburguer.local</strong>
+                  Chave PIX simulada:{' '}
+                  <strong className="text-foreground">pix@nandsburguer.local</strong>
                 </div>
               )}
             </CardContent>
@@ -420,7 +408,7 @@ export default function CheckoutPage() {
                           backgroundImage: `url(${getProductImage(
                             item.product?.category?.name,
                             item.product?.name || ''
-                          )})`
+                          )})`,
                         }}
                       />
                       <div className="min-w-0 flex-1">
@@ -462,11 +450,7 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              <Button
-                onClick={handleCreateOrder}
-                disabled={isLoading}
-                className="h-12 w-full"
-              >
+              <Button onClick={handleCreateOrder} disabled={isLoading} className="h-12 w-full">
                 {isLoading ? 'Finalizando pedido...' : 'Confirmar e pagar'}
               </Button>
               <Button

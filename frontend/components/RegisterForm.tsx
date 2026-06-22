@@ -1,8 +1,11 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 
 export function RegisterForm() {
   const [email, setEmail] = useState('');
@@ -14,103 +17,92 @@ export function RegisterForm() {
   const { register } = useAuth();
   const router = useRouter();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
     setError('');
-
     if (password !== confirmPassword) {
-      setError('As senhas nao conferem');
+      setError('As senhas não conferem.');
       return;
     }
-
     setIsLoading(true);
-
     try {
       await register(email, password, name);
       router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao registrar');
+      setError(err instanceof Error ? err.message : 'Não foi possível criar a conta.');
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-full max-w-md rounded-[2rem] border border-[#F77F00]/30 bg-white/95 p-6 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.35)] backdrop-blur-sm sm:p-10"
-    >
-      <div className="mb-8 space-y-3 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#F77F00] text-3xl font-black text-[#111] shadow-lg shadow-[#F77F00]/30">
-          N
-        </div>
-        <h2 className="text-3xl font-bold">Junte-se ao Nands Burger</h2>
-        <p className="text-sm text-gray-600">Crie sua conta e comece a pedir seus burgers favoritos.</p>
-      </div>
+    <form onSubmit={handleSubmit} className="w-full max-w-md">
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
+        Primeiro pedido?
+      </p>
+      <h2 className="display-title mt-3 text-4xl">Crie sua conta</h2>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">
+        Leva pouco tempo. A parte difícil é escolher o burger.
+      </p>
 
       {error && (
-        <div className="mb-6 rounded-3xl border border-[#f7c0bf] bg-[#ffe3e1] p-4 text-[#8b1818]">
+        <div className="mt-5 rounded-lg border border-primary/25 bg-primary/[0.07] p-4 text-sm font-bold text-primary">
           {error}
         </div>
       )}
 
-      <div className="space-y-5">
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-[#111111]">Nome</label>
-          <input
+      <div className="mt-6 space-y-4">
+        <label className="block space-y-2 text-sm font-black">
+          <span>Nome</span>
+          <Input
             type="text"
             autoComplete="name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-3xl border border-[#ddd] bg-[#faf3ed] px-4 py-3 text-sm outline-none transition focus:border-[#D62828]"
+            onChange={(event) => setName(event.target.value)}
             required
           />
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-[#111111]">Email</label>
-          <input
+        </label>
+        <label className="block space-y-2 text-sm font-black">
+          <span>E-mail</span>
+          <Input
             type="email"
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-3xl border border-[#ddd] bg-[#faf3ed] px-4 py-3 text-sm outline-none transition focus:border-[#D62828]"
+            onChange={(event) => setEmail(event.target.value)}
             required
           />
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-[#111111]">Senha</label>
-          <input
+        </label>
+        <label className="block space-y-2 text-sm font-black">
+          <span>Senha</span>
+          <Input
             type="password"
             autoComplete="new-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-3xl border border-[#ddd] bg-[#faf3ed] px-4 py-3 text-sm outline-none transition focus:border-[#D62828]"
+            onChange={(event) => setPassword(event.target.value)}
             required
           />
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-[#111111]">Confirmar senha</label>
-          <input
+        </label>
+        <label className="block space-y-2 text-sm font-black">
+          <span>Confirmar senha</span>
+          <Input
             type="password"
             autoComplete="new-password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full rounded-3xl border border-[#ddd] bg-[#faf3ed] px-4 py-3 text-sm outline-none transition focus:border-[#D62828]"
+            onChange={(event) => setConfirmPassword(event.target.value)}
             required
           />
-        </div>
+        </label>
       </div>
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="mt-8 w-full rounded-full bg-[#F77F00] px-6 py-3 text-sm font-semibold text-[#000000] transition hover:bg-[#e06f00] disabled:cursor-not-allowed disabled:bg-[#f8cf9d]"
-      >
-        {isLoading ? 'Registrando...' : 'Registrar'}
-      </button>
+      <Button type="submit" disabled={isLoading} className="mt-7 w-full">
+        {isLoading ? 'Criando conta...' : 'Criar conta'}
+      </Button>
+      <p className="mt-5 text-center text-sm text-muted-foreground">
+        Já tem conta?{' '}
+        <Link href="/auth/login" className="font-black text-primary hover:underline">
+          Entrar
+        </Link>
+      </p>
     </form>
   );
 }

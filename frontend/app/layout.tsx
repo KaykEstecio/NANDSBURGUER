@@ -9,16 +9,12 @@ import { Footer } from '../components/Footer';
 
 export const metadata: Metadata = {
   title: 'Nands Burger | Hamburgueria',
-  description: 'Nands Burger - hamburgueria artesanal com pedidos online, delivery e retirada.'
+  description: 'Nands Burger - hamburgueria artesanal com pedidos online, delivery e retirada.',
 };
 
-export default function RootLayout({
-  children
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" data-scroll-behavior="smooth">
       <body>
         <AuthProvider>
           <ProductProvider>

@@ -16,7 +16,12 @@ function BagIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="size-6" aria-hidden="true">
       <path d="M5 8h14l-1 12H6L5 8Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-      <path d="M9 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path
+        d="M9 9V6a3 3 0 0 1 6 0v3"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -78,7 +83,10 @@ export default function OrdersPage() {
       ) : (
         <div className="grid gap-5 lg:grid-cols-2">
           {orders.map((order) => (
-            <Card key={order.id} className="overflow-hidden transition hover:border-primary/20 hover:shadow-lg">
+            <Card
+              key={order.id}
+              className="overflow-hidden transition hover:border-primary/20 hover:shadow-lg"
+            >
               <CardContent className="p-0">
                 <div className="flex flex-col gap-4 border-b border-border/70 p-5 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -87,10 +95,13 @@ export default function OrdersPage() {
                       <OrderStatusBadge status={order.status} />
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      {new Date(order.createdAt).toLocaleDateString('pt-BR')} · {order.items?.length || 0} item(ns)
+                      {new Date(order.createdAt).toLocaleDateString('pt-BR')} ·{' '}
+                      {order.items?.length || 0} item(ns)
                     </p>
                   </div>
-                  <p className="text-2xl font-black text-primary">{formatCurrency(Number(order.total))}</p>
+                  <p className="text-2xl font-black text-primary">
+                    {formatCurrency(Number(order.total))}
+                  </p>
                 </div>
 
                 <div className="space-y-3 p-5">

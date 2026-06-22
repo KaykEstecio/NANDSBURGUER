@@ -37,19 +37,13 @@ export const formatDate = (date: Date | string, locale: string = 'pt-BR'): strin
   return d.toLocaleDateString(locale);
 };
 
-export const formatDateTime = (
-  date: Date | string,
-  locale: string = 'pt-BR'
-): string => {
+export const formatDateTime = (date: Date | string, locale: string = 'pt-BR'): string => {
   const d = typeof date === 'string' ? new Date(date) : date;
   return d.toLocaleString(locale);
 };
 
 // Array utilities
-export const groupBy = <T,>(
-  array: T[],
-  key: keyof T
-): Record<string, T[]> => {
+export const groupBy = <T>(array: T[], key: keyof T): Record<string, T[]> => {
   return array.reduce(
     (result, item) => {
       const group = String(item[key]);
@@ -61,34 +55,23 @@ export const groupBy = <T,>(
   );
 };
 
-export const unique = <T,>(array: T[], key?: keyof T): T[] => {
+export const unique = <T>(array: T[], key?: keyof T): T[] => {
   if (!key) return Array.from(new Set(array));
-  return array.filter((item, index, self) =>
-    index === self.findIndex((t) => t[key] === item[key])
-  );
+  return array.filter((item, index, self) => index === self.findIndex((t) => t[key] === item[key]));
 };
 
 // Object utilities
-export const omit = <T extends Record<string, any>,>(
-  obj: T,
-  ...keys: (keyof T)[]
-): Partial<T> => {
+export const omit = <T extends Record<string, any>>(obj: T, ...keys: (keyof T)[]): Partial<T> => {
   const result = { ...obj };
   keys.forEach((key) => delete result[key]);
   return result;
 };
 
-export const pick = <T extends Record<string, any>,>(
-  obj: T,
-  ...keys: (keyof T)[]
-): Partial<T> => {
-  return keys.reduce(
-    (result, key) => {
-      result[key] = obj[key];
-      return result;
-    },
-    {} as Partial<T>
-  );
+export const pick = <T extends Record<string, any>>(obj: T, ...keys: (keyof T)[]): Partial<T> => {
+  return keys.reduce((result, key) => {
+    result[key] = obj[key];
+    return result;
+  }, {} as Partial<T>);
 };
 
 // Validation utilities
@@ -110,7 +93,7 @@ export const delay = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export const retry = async <T,>(
+export const retry = async <T>(
   fn: () => Promise<T>,
   options: { maxAttempts?: number; delayMs?: number } = {}
 ): Promise<T> => {

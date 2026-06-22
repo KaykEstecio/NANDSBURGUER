@@ -5,7 +5,7 @@ import {
   createdResponse,
   forbiddenResponse,
   handleApiError,
-  successResponse
+  successResponse,
 } from '@/lib/api-helpers';
 import { categoryCreateSchema } from '@/lib/validators';
 
@@ -23,14 +23,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = authenticateToken(request);
-    
+
     if (user.role !== 'ADMIN') {
       return forbiddenResponse();
     }
 
     const data = categoryCreateSchema.parse(await request.json());
     const category = await categoryService.createCategory(data);
-    
+
     return createdResponse(category);
   } catch (error) {
     return handleApiError(error);

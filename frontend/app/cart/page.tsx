@@ -7,27 +7,14 @@ import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '../../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Separator } from '../../components/ui/separator';
 import { formatCurrency } from '../../lib/utils';
 import { LoadingPanel, StatePanel } from '../../components/ui/state-panel';
 
 export default function CartPage() {
-  const {
-    items,
-    total,
-    fetchCart,
-    updateItem,
-    removeItem,
-    isLoading,
-    error,
-    successMessage
-  } = useCart();
+  const { items, total, fetchCart, updateItem, removeItem, isLoading, error, successMessage } =
+    useCart();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
@@ -66,21 +53,16 @@ export default function CartPage() {
           </Badge>
           <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-4xl font-black leading-none sm:text-5xl">
-                Carrinho de compras
-              </h1>
+              <h1 className="text-4xl font-black leading-none sm:text-5xl">Carrinho de compras</h1>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-white/[0.72] sm:text-base">
-                Revise os itens antes de seguir para retirada, delivery e
-                pagamento.
+                Revise os itens antes de seguir para retirada, delivery e pagamento.
               </p>
             </div>
             <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.06] p-4">
               <p className="text-xs font-black uppercase tracking-[0.12em] text-white/[0.62]">
                 Total atual
               </p>
-              <p className="mt-1 text-3xl font-black text-secondary">
-                {formatCurrency(total)}
-              </p>
+              <p className="mt-1 text-3xl font-black text-secondary">{formatCurrency(total)}</p>
             </div>
           </div>
         </div>

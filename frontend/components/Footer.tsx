@@ -1,52 +1,64 @@
+import Link from 'next/link';
+
 export function Footer() {
   return (
-    <footer className="bg-[#0f0f0f] text-white mt-16 border-t border-[#222222]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr_1fr]">
-          <div className="space-y-5">
-            <div className="inline-flex items-center gap-3 rounded-full bg-[#D62828] px-4 py-2 text-sm font-bold uppercase tracking-[0.35em] text-white shadow-lg shadow-[#D62828]/20">
-              <span>🍔</span>
-              Nands Burger
+    <footer className="mt-14 border-t-2 border-secondary bg-[#171412] text-white">
+      <div className="mx-auto max-w-7xl px-4 py-9 sm:px-6 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-[1.4fr_0.8fr_0.8fr]">
+          <div>
+            <div className="flex items-center gap-4">
+              <span className="flex size-14 items-center justify-center rounded-full border-2 border-secondary bg-primary text-2xl font-black shadow-[4px_4px_0_#e5a823]">
+                N
+              </span>
+              <div>
+                <p className="display-title text-2xl">Nands Burguer</p>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-secondary">
+                  Burger de verdade
+                </p>
+              </div>
             </div>
-            <p className="max-w-xl text-sm text-gray-300">
-              A hamburgueria que entrega sabor artesanal, combos caprichados e atendimento rápido para seu pedido chegar sempre quentinho.
+            <p className="mt-5 max-w-lg text-sm leading-6 text-white/65">
+              Hambúrguer artesanal, chapa quente e pedido sem complicação. Delivery e retirada com
+              sabor de hamburgueria de bairro.
             </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-3xl bg-white/5 p-4">
-                <p className="text-xs uppercase tracking-[0.35em] text-[#F77F00]">Atendimento</p>
-                <p className="mt-2 text-sm text-gray-200">Seg-Sex 11h-22h • Sáb-Dom 12h-00h</p>
-              </div>
-              <div className="rounded-3xl bg-white/5 p-4">
-                <p className="text-xs uppercase tracking-[0.35em] text-[#F77F00]">Contato</p>
-                <p className="mt-2 text-sm text-gray-200">(11) 4000-1234 • WhatsApp</p>
-              </div>
+            <div className="mt-5 flex flex-wrap gap-x-8 gap-y-2 text-sm font-bold text-white/80">
+              <span>Seg–Sex: 11h–22h</span>
+              <span>Sáb–Dom: 12h–00h</span>
+              <span>(11) 4000-1234</span>
             </div>
           </div>
 
           <div>
-            <h4 className="font-semibold text-[#F77F00] mb-4">Navegação</h4>
-            <ul className="space-y-3 text-sm text-gray-300">
-              <li><a href="/" className="hover:text-white">Início</a></li>
-              <li><a href="/products" className="hover:text-white">Cardápio</a></li>
-              <li><a href="/#promocoes" className="hover:text-white">Promoções</a></li>
-              <li><a href="/#contato" className="hover:text-white">Contato</a></li>
-              <li><a href="/cart" className="hover:text-white">Carrinho</a></li>
-            </ul>
+            <h2 className="display-title text-lg text-secondary">Navegue</h2>
+            <nav className="mt-4 flex flex-col gap-2.5 text-sm font-bold text-white/70">
+              <Link href="/" className="transition hover:text-secondary">
+                Início
+              </Link>
+              <Link href="/products" className="transition hover:text-secondary">
+                Cardápio
+              </Link>
+              <Link href="/cart" className="transition hover:text-secondary">
+                Carrinho
+              </Link>
+              <Link href="/orders" className="transition hover:text-secondary">
+                Meus pedidos
+              </Link>
+            </nav>
           </div>
 
           <div>
-            <h4 className="font-semibold text-[#F77F00] mb-4">Siga a Nands</h4>
-            <ul className="space-y-3 text-sm text-gray-300">
-              <li><a href="#" className="hover:text-white">Instagram</a></li>
-              <li><a href="#" className="hover:text-white">WhatsApp</a></li>
-              <li><a href="#" className="hover:text-white">Facebook</a></li>
-              <li><a href="#" className="hover:text-white">Atendimento</a></li>
-            </ul>
+            <h2 className="display-title text-lg text-secondary">Encontre a Nands</h2>
+            <div className="mt-4 space-y-2.5 text-sm leading-6 text-white/70">
+              <p>Rua do Hambúrguer, 123</p>
+              <p>Delivery e retirada no balcão</p>
+              <p>Instagram · WhatsApp</p>
+            </div>
           </div>
         </div>
 
-        <div className="border-t border-[#222222] mt-10 pt-6 text-center text-sm text-gray-400">
-          <p>&copy; 2026 Nands Burger. Sabor e velocidade em cada pedido.</p>
+        <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-5 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 Nands Burguer.</p>
+          <p>Feito para matar a fome, não a paciência.</p>
         </div>
       </div>
     </footer>

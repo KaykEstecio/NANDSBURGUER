@@ -5,11 +5,7 @@ interface SeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
   orientation?: 'horizontal' | 'vertical';
 }
 
-function Separator({
-  className,
-  orientation = 'horizontal',
-  ...props
-}: SeparatorProps) {
+function Separator({ className, orientation = 'horizontal', ...props }: SeparatorProps) {
   return (
     <div
       role="separator"

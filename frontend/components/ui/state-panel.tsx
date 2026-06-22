@@ -7,13 +7,13 @@ type StateTone = 'neutral' | 'error' | 'success';
 const toneClasses: Record<StateTone, string> = {
   neutral: 'border-border bg-card text-foreground',
   error: 'border-primary/25 bg-primary/[0.06] text-foreground',
-  success: 'border-secondary/35 bg-secondary/[0.10] text-foreground'
+  success: 'border-secondary/35 bg-secondary/[0.10] text-foreground',
 };
 
 const iconClasses: Record<StateTone, string> = {
   neutral: 'bg-muted text-muted-foreground',
   error: 'bg-primary/10 text-primary',
-  success: 'bg-secondary/20 text-secondary-foreground'
+  success: 'bg-secondary/20 text-secondary-foreground',
 };
 
 interface StatePanelProps {
@@ -33,7 +33,7 @@ export function StatePanel({
   icon,
   actionLabel,
   onAction,
-  className
+  className,
 }: StatePanelProps) {
   return (
     <div
@@ -44,7 +44,12 @@ export function StatePanel({
       )}
     >
       {icon ? (
-        <div className={cn('mb-5 flex size-12 items-center justify-center rounded-full', iconClasses[tone])}>
+        <div
+          className={cn(
+            'mb-5 flex size-12 items-center justify-center rounded-full',
+            iconClasses[tone]
+          )}
+        >
           {icon}
         </div>
       ) : null}
@@ -61,13 +66,18 @@ export function StatePanel({
 
 export function LoadingPanel({
   label = 'Carregando...',
-  className
+  className,
 }: {
   label?: string;
   className?: string;
 }) {
   return (
-    <div className={cn('grid min-h-52 place-items-center rounded-[1.25rem] border border-border bg-card p-8 shadow-sm', className)}>
+    <div
+      className={cn(
+        'grid min-h-52 place-items-center rounded-[1.25rem] border border-border bg-card p-8 shadow-sm',
+        className
+      )}
+    >
       <div className="flex flex-col items-center gap-4 text-center">
         <span className="size-9 animate-spin rounded-full border-4 border-muted border-t-primary" />
         <p className="text-sm font-bold text-muted-foreground">{label}</p>

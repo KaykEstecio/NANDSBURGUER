@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const user = authenticateToken(request);
     const userData = await authService.getMe(user.userId);
-    
+
     return successResponse(userData);
   } catch (error) {
     return handleApiError(error);

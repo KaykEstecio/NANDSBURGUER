@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const user = authenticateToken(request);
     const items = await cartService.getCart(user.userId);
     const total = calculateCartTotal(items);
-    
+
     return successResponse({ items, total });
   } catch (error) {
     return handleApiError(error);
