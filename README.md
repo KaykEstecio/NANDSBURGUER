@@ -22,37 +22,28 @@ Projeto integrador de faculdade: sistema web de hamburgueria com catálogo, aute
 
 O projeto é um monólito: páginas e endpoints ficam dentro de `frontend`, enquanto o PostgreSQL é executado separadamente.
 
-## Execução local
+## Deploy em Produção
 
-Requisitos:
+O projeto NANDS Burguer está publicado na Vercel e utiliza banco de dados PostgreSQL hospedado no Neon.
 
-- Node.js 20 ou superior.
-- Docker Desktop.
+### Ambiente de produção
 
-Na raiz do repositório:
+- Aplicação: Vercel
+- Banco de dados: Neon PostgreSQL
+- ORM: Prisma
+- Framework: Next.js
 
-```powershell
-docker compose up -d postgres
-cd frontend
-npm install
-npm run prisma:deploy
-npm run prisma:seed
-npm run dev
-```
+### Variáveis de ambiente
 
-Acesse [http://localhost:3000](http://localhost:3000).
+Para o funcionamento correto em produção, as seguintes variáveis devem estar configuradas na Vercel:
 
-Para conferir se o banco está ativo:
+````env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require"
+JWT_SECRET="chave_secreta_forte_para_producao"
+JWT_EXPIRES_IN="7d"
+NEXT_PUBLIC_API_URL="/api"
+NODE_ENV="production"
 
-```powershell
-docker compose ps
-```
-
-Para parar o banco depois da apresentação:
-
-```powershell
-docker compose down
-```
 
 ## Usuários de demonstração
 
@@ -66,7 +57,7 @@ senha: 123456
 Cliente
 email: teste@nands.com
 senha: 123456
-```
+````
 
 Essas credenciais são apenas para demonstração acadêmica.
 
